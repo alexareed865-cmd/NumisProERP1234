@@ -426,30 +426,42 @@ fun QuickAccessButton(
     onClick: () -> Unit
 ) {
     val theme = LocalAppTheme.current
+    val tileSize = 76.dp
+    val tileCorner = 18.dp
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .clickable { onClick() }
-            .padding(8.dp)
+            .padding(4.dp)
     ) {
-        if (theme == AppTheme.OLEG_SMILE) {
-            Image(
-                painter = painterResource(id = tileRes),
-                contentDescription = label,
-                modifier = Modifier
-                    .size(IOSDesign.IconChipLarge)
-                    .clip(RoundedCornerShape(16.dp))
-            )
-        } else {
-            IOSIconChip(
-                icon = icon,
-                tint = MaterialTheme.colorScheme.primary,
-                chipSize = IOSDesign.IconChipLarge,
-                iconSize = IOSDesign.IconSizeLarge,
-                cornerRadius = 16.dp,
-                backgroundAlpha = 0.12f,
-                contentDescription = label
-            )
+        Box(
+            modifier = Modifier
+                .size(tileSize)
+                .clip(RoundedCornerShape(tileCorner))
+                .background(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.55f)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            if (theme == AppTheme.OLEG_SMILE) {
+                Image(
+                    painter = painterResource(id = tileRes),
+                    contentDescription = label,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                )
+            } else {
+                IOSIconChip(
+                    icon = icon,
+                    tint = MaterialTheme.colorScheme.primary,
+                    chipSize = 64.dp,
+                    iconSize = 32.dp,
+                    cornerRadius = 14.dp,
+                    backgroundAlpha = 0.12f,
+                    contentDescription = label
+                )
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
