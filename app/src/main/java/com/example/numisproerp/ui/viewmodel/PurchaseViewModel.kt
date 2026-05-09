@@ -45,7 +45,7 @@ class PurchaseViewModel @Inject constructor(
                     suppliers = suppliers,
                     products = products,
                     isLoading = false,
-                    selectedSupplierId = suppliers.firstOrNull()?.supplierId ?: ""
+                    selectedSupplierId = ""
                 )
             } catch (e: IOException) {
                 _uiState.value = _uiState.value.copy(

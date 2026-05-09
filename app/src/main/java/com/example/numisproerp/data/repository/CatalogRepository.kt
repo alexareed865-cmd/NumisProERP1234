@@ -135,6 +135,6 @@ class CatalogRepository @Inject constructor(
         if (websiteUrl.isBlank()) return ""
         val codeMatch = Regex("code=([A-Za-z0-9]+)").find(websiteUrl)
         val code = codeMatch?.groupValues?.get(1) ?: return ""
-        return "https://bank.gov.ua/files/coins_images/${code}_${type}.png?v=17"
+        return "https://bank.gov.ua/files/coins_images/${code}${type}.png?v=17"
     }
 }
