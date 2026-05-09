@@ -133,8 +133,11 @@ class CatalogRepository @Inject constructor(
 
     private fun extractImageUrl(websiteUrl: String, type: String): String {
         if (websiteUrl.isBlank()) return ""
-        val codeMatch = Regex("code=([A-Za-z0-9]+)").find(websiteUrl)
-        val code = codeMatch?.groupValues?.get(1) ?: return ""
+        val codeMatchQuery = Regex("code=([A-Za-z0-9]+)").find(websiteUrl)
+        val codeMatchPath = Regex("code/([A-Za-z0-9]+)").find(websiteUrl)
+        val code = codeMatchQuery?.groupValues?.get(1)
+            ?: codeMatchPath?.groupValues?.get(1)
+            ?: return ""
         return "https://bank.gov.ua/files/coins_images/${code}${type}.png?v=17"
     }
 }

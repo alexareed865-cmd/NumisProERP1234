@@ -121,9 +121,13 @@ fun CatalogScreen(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Кнопки сортування та фільтру тільки якщо є дані
-            if (uiState.isDataLoaded) {
-                Row {
+            Row {
+                IconButton(
+                    onClick = { filePickerLauncher.launch(arrayOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) }
+                ) {
+                    Icon(Icons.Default.Upload, contentDescription = tr("Завантажити Excel", "Upload Excel"), tint = AccentGreen)
+                }
+                if (uiState.isDataLoaded) {
                     IconButton(onClick = { viewModel.toggleSortDialog(true) }) {
                         Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = tr("Сортувати", "Sort"), tint = AccentBlue)
                     }
@@ -131,8 +135,6 @@ fun CatalogScreen(
                         Icon(Icons.Default.FilterList, contentDescription = tr("Фільтрувати", "Filter"), tint = AccentBlue)
                     }
                 }
-            } else {
-                Spacer(modifier = Modifier.width(48.dp))
             }
         }
 
@@ -141,20 +143,30 @@ fun CatalogScreen(
                 .fillMaxSize()
                 .padding(top = 72.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
-            // Якщо дані не завантажені - показуємо дві кнопки
+            // Якщо дані не завантажені - показуємо кнопку завантаження
             if (!uiState.isDataLoaded && !uiState.isLoading) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Text(
+                        text = tr(
+                            "Каталог порожній. Завантажте Excel-файл з каталогом НБУ.",
+                            "Catalog is empty. Upload an Excel file with NBU catalog."
+                        ),
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
                     Button(
                         onClick = { filePickerLauncher.launch(arrayOf("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) },
                         modifier = Modifier.fillMaxWidth().padding(8.dp),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     ) {
                         Icon(Icons.Default.Upload, contentDescription = null)
-                        Text(tr("Каталог НБУ (завантажити Excel)", "NBU Catalog (load Excel)"), modifier = Modifier.padding(start = 8.dp))
+                        Text(tr("Завантажити Excel", "Upload Excel"), modifier = Modifier.padding(start = 8.dp))
                     }
                 }
             }

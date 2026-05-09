@@ -685,7 +685,6 @@ fun PurchaseHistoryItem(purchase: PurchaseWithProductName) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
@@ -694,7 +693,9 @@ fun PurchaseHistoryItem(purchase: PurchaseWithProductName) {
                 Text(
                     text = purchase.productName,
                     fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
                 Text(
                     text = dateFormat.format(Date(purchase.date)),
@@ -702,17 +703,21 @@ fun PurchaseHistoryItem(purchase: PurchaseWithProductName) {
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
             }
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "${purchase.quantity} ${tr("шт.", "pcs")}",
-                fontSize = 12.sp,
-                modifier = Modifier.width(45.dp)
+                fontSize = 11.sp,
+                modifier = Modifier.width(40.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.End
             )
+            Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = String.format("%,.2f ₴", purchase.totalAmount),
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = AccentRed,
-                modifier = Modifier.width(85.dp)
+                modifier = Modifier.width(80.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.End
             )
         }
     }
