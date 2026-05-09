@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
 import com.numisproerp.ui.theme.AccentOrange
@@ -85,7 +86,7 @@ fun HistoryScreen(
         ) {
             Icon(
                 Icons.Default.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -107,7 +108,7 @@ fun HistoryScreen(
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
             Text(
-                text = "Історія",
+                text = tr("Історія", "History"),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -124,10 +125,16 @@ fun HistoryScreen(
             ) {
                 items(HistoryEntryType.values().toList()) { type ->
                     val selected = type in uiState.selectedTypes
+                    val typeLabel = when (type) {
+                        HistoryEntryType.PURCHASE -> tr("Закупівля", "Purchase")
+                        HistoryEntryType.SALE -> tr("Продаж", "Sale")
+                        HistoryEntryType.WRITEOFF -> tr("Списання", "Writeoff")
+                        HistoryEntryType.EXPENSE -> tr("Витрата", "Expense")
+                    }
                     FilterChip(
                         selected = selected,
                         onClick = { viewModel.toggleType(type) },
-                        label = { Text(type.label) },
+                        label = { Text(typeLabel) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                             selectedLabelColor = MaterialTheme.colorScheme.primary
@@ -149,7 +156,7 @@ fun HistoryScreen(
             } else if (visible.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "Записів історії немає",
+                        text = tr("Записів історії немає", "No history records"),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
                 }
@@ -180,7 +187,7 @@ private fun HistorySummaryCard(entries: List<HistoryEntry>) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text("Надходження", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Text(tr("Надходження", "Income"), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                 Text(
                     "+${String.format("%,.2f", income)} ₴",
                     fontWeight = FontWeight.Bold,
@@ -188,7 +195,7 @@ private fun HistorySummaryCard(entries: List<HistoryEntry>) {
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text("Витрати", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                Text(tr("Витрати", "Outflow"), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                 Text(
                     "-${String.format("%,.2f", outflow)} ₴",
                     fontWeight = FontWeight.Bold,
@@ -223,14 +230,20 @@ private fun HistoryRow(entry: HistoryEntry) {
             IOSIconChip(icon = icon, tint = color)
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
+                val localTypeLabel = when (entry.type) {
+                    HistoryEntryType.PURCHASE -> tr("Закупівля", "Purchase")
+                    HistoryEntryType.SALE -> tr("Продаж", "Sale")
+                    HistoryEntryType.WRITEOFF -> tr("Списання", "Writeoff")
+                    HistoryEntryType.EXPENSE -> tr("Витрата", "Expense")
+                }
                 Text(
-                    text = entry.type.label + if (entry.productName.isNotEmpty()) " • ${entry.productName}" else "",
+                    text = localTypeLabel + if (entry.productName.isNotEmpty()) " • ${entry.productName}" else "",
                     fontWeight = FontWeight.Bold,
                     fontSize = 13.sp
                 )
                 if (entry.counterparty.isNotEmpty()) {
                     Text(
-                        text = entry.counterparty + (entry.quantity?.let { " • $it шт." } ?: ""),
+                        text = entry.counterparty + (entry.quantity?.let { " • $it ${tr("шт.", "pcs")}" } ?: ""),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
@@ -267,17 +280,17 @@ private fun HistorySortMenu(
     IconButton(onClick = { open = true }) {
         Icon(
             imageVector = Icons.Default.Sort,
-            contentDescription = "Сортування",
+            contentDescription = tr("Сортування", "Sort"),
             tint = MaterialTheme.colorScheme.primary
         )
     }
     DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
         DropdownMenuItem(
-            text = { Text("Дата ↓ (новіші зверху)" + if (current == HistorySort.DATE_DESC) "  ✓" else "") },
+            text = { Text(tr("Дата ↓ (новіші зверху)", "Date ↓ (newer first)") + if (current == HistorySort.DATE_DESC) "  ✓" else "") },
             onClick = { onSelect(HistorySort.DATE_DESC); open = false }
         )
         DropdownMenuItem(
-            text = { Text("Дата ↑ (старіші зверху)" + if (current == HistorySort.DATE_ASC) "  ✓" else "") },
+            text = { Text(tr("Дата ↑ (старіші зверху)", "Date ↑ (older first)") + if (current == HistorySort.DATE_ASC) "  ✓" else "") },
             onClick = { onSelect(HistorySort.DATE_ASC); open = false }
         )
     }

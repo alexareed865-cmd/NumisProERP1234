@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
 import com.numisproerp.ui.theme.AccentOrange
@@ -96,7 +97,7 @@ fun ReportsScreen(
         ) {
             Icon(
                 Icons.Default.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -109,7 +110,7 @@ fun ReportsScreen(
         ) {
             Icon(
                 Icons.Default.CalendarToday,
-                contentDescription = "Вибрати період",
+                contentDescription = tr("Вибрати період", "Pick period"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -120,7 +121,7 @@ fun ReportsScreen(
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
             Text(
-                text = "Звіти",
+                text = tr("Звіти", "Reports"),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -159,7 +160,7 @@ fun ReportsScreen(
 
                     item {
                         Text(
-                            text = "Динаміка за місяцями (поточний зверху)",
+                            text = tr("Динаміка за місяцями (поточний зверху)", "Monthly dynamics (current on top)"),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -171,7 +172,7 @@ fun ReportsScreen(
 
                     item {
                         Text(
-                            text = "Топ товарів",
+                            text = tr("Топ товарів", "Top products"),
                             fontSize = 18.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                             modifier = Modifier.padding(top = 8.dp)
@@ -188,7 +189,7 @@ fun ReportsScreen(
                                 shape = RoundedCornerShape(IOSDesign.CardCornerRadius)
                             ) {
                                 Text(
-                                    text = "Немає даних про продажі",
+                                    text = tr("Немає даних про продажі", "No sales data"),
                                     modifier = Modifier.padding(16.dp),
                                     color = AccentOrange
                                 )
@@ -242,7 +243,7 @@ fun StatsGrid(
     ) {
         StatCard(
             modifier = Modifier.weight(1f),
-            title = "Дохід",
+            title = tr("Дохід", "Revenue"),
             value = String.format("%,.2f", uiState.totalRevenue),
             icon = Icons.Filled.ShoppingCart,
             iconColor = AccentGreen,
@@ -251,7 +252,7 @@ fun StatsGrid(
         )
         StatCard(
             modifier = Modifier.weight(1f),
-            title = "Витрати",
+            title = tr("Витрати", "Expenses"),
             value = String.format("%,.2f", uiState.totalExpenses),
             icon = Icons.Filled.Warning,
             iconColor = AccentRed,
@@ -268,7 +269,7 @@ fun StatsGrid(
     ) {
         StatCard(
             modifier = Modifier.weight(1f),
-            title = "Чистий прибуток",
+            title = tr("Чистий прибуток", "Net profit"),
             value = String.format("%,.2f", uiState.netProfit),
             icon = Icons.Filled.TrendingUp,
             iconColor = if (uiState.netProfit >= 0) AccentGreen else AccentRed,
@@ -277,7 +278,7 @@ fun StatsGrid(
         )
         StatCard(
             modifier = Modifier.weight(1f),
-            title = "Залишки на складі",
+            title = tr("Залишки на складі", "Stock balance"),
             value = String.format("%,.2f", uiState.stockValue),
             icon = Icons.Filled.Store,
             iconColor = AccentBlue,
@@ -358,7 +359,7 @@ fun MonthlyStatsCard(monthData: com.numisproerp.ui.viewmodel.MonthlyStats) {
             ) {
                 Column {
                     Text(
-                        text = "Дохід",
+                        text = tr("Дохід", "Revenue"),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
@@ -370,7 +371,7 @@ fun MonthlyStatsCard(monthData: com.numisproerp.ui.viewmodel.MonthlyStats) {
                 }
                 Column {
                     Text(
-                        text = "Витрати",
+                        text = tr("Витрати", "Expenses"),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
@@ -382,7 +383,7 @@ fun MonthlyStatsCard(monthData: com.numisproerp.ui.viewmodel.MonthlyStats) {
                 }
                 Column {
                     Text(
-                        text = "Прибуток",
+                        text = tr("Прибуток", "Profit"),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
@@ -426,7 +427,7 @@ fun TopProductCard(product: com.numisproerp.ui.viewmodel.TopProduct) {
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
                 )
                 Text(
-                    text = "Продано: ${product.quantitySold} шт.",
+                    text = "${tr("Продано", "Sold")}: ${product.quantitySold} ${tr("шт.", "pcs")}",
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
@@ -462,12 +463,12 @@ fun DateRangePickerDialog(
                         }
                     }
                 ) {
-                    Text("Далі")
+                    Text(tr("Далі", "Next"))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { onDismiss() }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         ) {
@@ -484,12 +485,12 @@ fun DateRangePickerDialog(
                         onConfirm(start, end)
                     }
                 ) {
-                    Text("Підтвердити")
+                    Text(tr("Підтвердити", "Confirm"))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { onDismiss() }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         ) {
@@ -506,10 +507,10 @@ fun ReportsDetailDialog(
     onDismiss: () -> Unit
 ) {
     val title = when (tab) {
-        ReportsTab.REVENUE -> "Дохід"
-        ReportsTab.EXPENSES -> "Витрати"
-        ReportsTab.PROFIT -> "Чистий прибуток"
-        ReportsTab.STOCK -> "Залишки на складі"
+        ReportsTab.REVENUE -> tr("Дохід", "Revenue")
+        ReportsTab.EXPENSES -> tr("Витрати", "Expenses")
+        ReportsTab.PROFIT -> tr("Чистий прибуток", "Net profit")
+        ReportsTab.STOCK -> tr("Залишки на складі", "Stock balance")
     }
     val accent = when (tab) {
         ReportsTab.REVENUE -> AccentGreen
@@ -526,7 +527,7 @@ fun ReportsDetailDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Закрити") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Закрити", "Close")) } },
         title = {
             Column {
                 Text(text = title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -547,7 +548,7 @@ fun ReportsDetailDialog(
                     ReportsTab.STOCK -> {
                         if (stockBreakdown.isEmpty()) {
                             Text(
-                                text = "Немає товарів на складі",
+                                text = tr("Немає товарів на складі", "No items in stock"),
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
                         } else {
@@ -590,7 +591,7 @@ fun ReportsDetailDialog(
                     }
                     else -> {
                         Text(
-                            text = "Розбивка по місяцях:",
+                            text = tr("Розбивка по місяцях:", "Monthly breakdown:"),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )

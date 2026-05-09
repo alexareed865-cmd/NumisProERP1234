@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import android.widget.Toast
 import com.numisproerp.data.dao.ProductInStock
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentOrange
 import com.numisproerp.ui.theme.AccentRed
@@ -99,7 +100,7 @@ fun WriteoffScreen(
         ) {
             Icon(
                 Icons.Default.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -111,7 +112,7 @@ fun WriteoffScreen(
                 .padding(16.dp),
             containerColor = AccentRed
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Списати товар")
+            Icon(Icons.Default.Add, contentDescription = tr("Списати товар", "Write off item"))
         }
 
         Column(
@@ -120,7 +121,7 @@ fun WriteoffScreen(
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
             Text(
-                text = "Списання",
+                text = tr("Списання", "Writeoff"),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -144,7 +145,7 @@ fun WriteoffScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Загальні списання (${uiState.writeoffs.size}):",
+                        text = "${tr("Загальні списання", "Total writeoffs")} (${uiState.writeoffs.size}):",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -166,7 +167,7 @@ fun WriteoffScreen(
             } else if (uiState.writeoffs.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "Списань немає.\nНатисніть + щоб списати товар",
+                        text = tr("Списань немає.\nНатисніть + щоб списати товар", "No writeoffs.\nTap + to write off an item"),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                         textAlign = TextAlign.Center
                     )
@@ -265,7 +266,7 @@ private fun AddWriteoffDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Списання товару") },
+        title = { Text(tr("Списання товару", "Write off item")) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 ExposedDropdownMenuBox(
@@ -279,8 +280,8 @@ private fun AddWriteoffDialog(
                             productExpanded = true
                             if (it.isBlank()) selectedProductId = ""
                         },
-                        label = { Text("Товар *") },
-                        placeholder = { Text("Введіть для пошуку...") },
+                        label = { Text(tr("Товар *", "Item *")) },
+                        placeholder = { Text(tr("Введіть для пошуку...", "Type to search...")) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = productExpanded) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -298,7 +299,7 @@ private fun AddWriteoffDialog(
                                         Column {
                                             Text(p.name, fontSize = 13.sp)
                                             Text(
-                                                "В наявності: ${p.currentStock} шт. • сер.закуп. ${String.format("%,.2f", p.avgPurchasePrice)} ₴",
+                                                "${tr("В наявності", "In stock")}: ${p.currentStock} ${tr("шт.", "pcs")} • ${tr("сер.закуп.", "avg.purch.")} ${String.format("%,.2f", p.avgPurchasePrice)} ₴",
                                                 fontSize = 11.sp,
                                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                                             )
@@ -317,7 +318,7 @@ private fun AddWriteoffDialog(
 
                 if (selectedProduct != null) {
                     Text(
-                        text = "На складі: ${selectedProduct.currentStock} шт. (сер. ${String.format("%,.2f", selectedProduct.avgPurchasePrice)} ₴)",
+                        text = "${tr("На складі", "In stock")}: ${selectedProduct.currentStock} ${tr("шт.", "pcs")} (${tr("сер.", "avg.")} ${String.format("%,.2f", selectedProduct.avgPurchasePrice)} ₴)",
                         fontSize = 11.sp,
                         color = AccentBlue
                     )
@@ -326,7 +327,7 @@ private fun AddWriteoffDialog(
                 OutlinedTextField(
                     value = quantityText,
                     onValueChange = { quantityText = it.filter { ch -> ch.isDigit() } },
-                    label = { Text("Кількість *") },
+                    label = { Text(tr("Кількість *", "Quantity *")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -339,7 +340,7 @@ private fun AddWriteoffDialog(
                         value = selectedReason,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Причина *") },
+                        label = { Text(tr("Причина *", "Reason *")) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = reasonExpanded) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -364,7 +365,7 @@ private fun AddWriteoffDialog(
                 OutlinedTextField(
                     value = comment,
                     onValueChange = { comment = it },
-                    label = { Text("Коментар") },
+                    label = { Text(tr("Коментар", "Comment")) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2
                 )
@@ -373,7 +374,7 @@ private fun AddWriteoffDialog(
                     val qty = quantityText.toIntOrNull() ?: 0
                     val total = selectedProduct.avgPurchasePrice * qty
                     Text(
-                        text = "Сума списання: ${String.format("%,.2f", total)} ₴",
+                        text = "${tr("Сума списання", "Writeoff sum")}: ${String.format("%,.2f", total)} ₴",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = AccentRed
@@ -393,11 +394,11 @@ private fun AddWriteoffDialog(
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
             ) {
-                Text("Списати")
+                Text(tr("Списати", "Write off"))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Скасувати") }
+            TextButton(onClick = onDismiss) { Text(tr("Скасувати", "Cancel")) }
         }
     )
 }

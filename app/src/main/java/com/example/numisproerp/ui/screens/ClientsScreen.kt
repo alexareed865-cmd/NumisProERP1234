@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.numisproerp.data.dao.ClientWithBalance
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.data.dao.SaleWithProductName
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
@@ -107,6 +108,11 @@ fun ClientsScreen(
         }
     }
 
+    val phoneCopiedText = tr("Телефон скопійовано", "Phone copied")
+    val telegramCopiedText = tr("Telegram скопійовано", "Telegram copied")
+    val clientUpdatedText = tr("Клієнта оновлено", "Client updated")
+    val clientDeletedText = tr("Клієнта видалено", "Client deleted")
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -124,13 +130,13 @@ fun ClientsScreen(
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     Icons.Default.ArrowBack,
-                    contentDescription = "Назад",
+                    contentDescription = tr("Назад", "Back"),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
 
             Text(
-                text = "Клієнти",
+                text = tr("Клієнти", "Clients"),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -154,12 +160,12 @@ fun ClientsScreen(
                     value = uiState.searchQuery,
                     onValueChange = { viewModel.updateSearchQuery(it) },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Пошук за ім'ям, телефоном або містом...") },
+                    placeholder = { Text(tr("Пошук за ім'ям, телефоном або містом...", "Search by name, phone or city...")) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     trailingIcon = {
                         if (uiState.searchQuery.isNotEmpty()) {
                             IconButton(onClick = { viewModel.updateSearchQuery("") }) {
-                                Icon(Icons.Outlined.Clear, contentDescription = "Очистити")
+                                Icon(Icons.Outlined.Clear, contentDescription = tr("Очистити", "Clear"))
                             }
                         }
                     },
@@ -176,7 +182,7 @@ fun ClientsScreen(
                 ) {
                     Icon(
                         Icons.Default.Add,
-                        contentDescription = "Додати клієнта",
+                        contentDescription = tr("Додати клієнта", "Add client"),
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -197,7 +203,7 @@ fun ClientsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Немає клієнтів.\nНатисніть + щоб додати",
+                        text = tr("Немає клієнтів.\nНатисніть + щоб додати", "No clients.\nTap + to add"),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
                 }
@@ -216,12 +222,12 @@ fun ClientsScreen(
                             onCopyPhone = {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 clipboard.setPrimaryClip(android.content.ClipData.newPlainText("phone", client.phone))
-                                Toast.makeText(context, "Телефон скопійовано", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, phoneCopiedText, Toast.LENGTH_SHORT).show()
                             },
                             onCopyTelegram = {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 clipboard.setPrimaryClip(android.content.ClipData.newPlainText("telegram", client.telegram))
-                                Toast.makeText(context, "Telegram скопійовано", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, telegramCopiedText, Toast.LENGTH_SHORT).show()
                             }
                         )
                     }
@@ -239,7 +245,7 @@ fun ClientsScreen(
                 editMode = false
             },
             title = {
-                if (editMode) Text("Редагувати клієнта")
+                if (editMode) Text(tr("Редагувати клієнта", "Edit client"))
                 else Text(selectedClient!!.name)
             },
             text = {
@@ -253,14 +259,14 @@ fun ClientsScreen(
                         OutlinedTextField(
                             value = editName,
                             onValueChange = { editName = it },
-                            label = { Text("ПІБ / Нікнейм *") },
+                            label = { Text(tr("ПІБ / Нікнейм *", "Full name / Nickname *")) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                         )
                         OutlinedTextField(
                             value = editPhone,
                             onValueChange = { editPhone = it },
-                            label = { Text("Телефон") },
+                            label = { Text(tr("Телефон", "Phone")) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                         )
@@ -274,14 +280,14 @@ fun ClientsScreen(
                         OutlinedTextField(
                             value = editCity,
                             onValueChange = { editCity = it },
-                            label = { Text("Місто") },
+                            label = { Text(tr("Місто", "City")) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                         )
                         OutlinedTextField(
                             value = editNotes,
                             onValueChange = { editNotes = it },
-                            label = { Text("Нотатки") },
+                            label = { Text(tr("Нотатки", "Notes")) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                         )
@@ -297,10 +303,10 @@ fun ClientsScreen(
                                 modifier = Modifier.padding(12.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text("Основна інформація", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(tr("Основна інформація", "Main info"), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 if (selectedClient!!.phone.isNotEmpty()) {
                                     Row {
-                                        Text("Телефон: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                        Text("${tr("Телефон", "Phone")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                         Text(selectedClient!!.phone, fontSize = 13.sp, color = AccentOrange)
                                     }
                                 }
@@ -312,18 +318,18 @@ fun ClientsScreen(
                                 }
                                 if (selectedClient!!.city.isNotEmpty()) {
                                     Row {
-                                        Text("Місто: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                        Text("${tr("Місто", "City")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                         Text(selectedClient!!.city, fontSize = 13.sp)
                                     }
                                 }
                                 if (selectedClient!!.notes.isNotEmpty()) {
                                     Row {
-                                        Text("Нотатки: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                        Text("${tr("Нотатки", "Notes")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                         Text(selectedClient!!.notes, fontSize = 13.sp)
                                     }
                                 }
                                 Row {
-                                    Text("Всього покупок: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Всього покупок", "Total purchases")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(
                                         text = String.format("%,.2f ₴", selectedClient!!.totalSpent),
                                         fontSize = 13.sp,
@@ -347,7 +353,7 @@ fun ClientsScreen(
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Text(
-                                        text = "Історія покупок",
+                                        text = tr("Історія покупок", "Purchase history"),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp
                                     )
@@ -371,7 +377,7 @@ fun ClientsScreen(
                                 shape = RoundedCornerShape(IOSDesign.CardCornerRadius)
                             ) {
                                 Text(
-                                    text = "Немає історії покупок",
+                                    text = tr("Немає історії покупок", "No purchase history"),
                                     modifier = Modifier.padding(12.dp),
                                     fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -401,14 +407,14 @@ fun ClientsScreen(
                                     editMode = false
                                     showDetailDialog = false
                                     selectedClient = null
-                                    Toast.makeText(context, "Клієнта оновлено", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, clientUpdatedText, Toast.LENGTH_SHORT).show()
                                 }
                             }
                         ) {
-                            Text("Зберегти", color = AccentGreen)
+                            Text(tr("Зберегти", "Save"), color = AccentGreen)
                         }
                         TextButton(onClick = { editMode = false }) {
-                            Text("Скасувати", color = AccentRed)
+                            Text(tr("Скасувати", "Cancel"), color = AccentRed)
                         }
                     }
                 } else {
@@ -427,7 +433,7 @@ fun ClientsScreen(
                             }
                         ) {
                             Icon(Icons.Default.Edit, contentDescription = null)
-                            Text("Редагувати")
+                            Text(tr("Редагувати", "Edit"))
                         }
                         TextButton(
                             onClick = {
@@ -436,7 +442,7 @@ fun ClientsScreen(
                             }
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = null)
-                            Text("Видалити", color = AccentRed)
+                            Text(tr("Видалити", "Delete"), color = AccentRed)
                         }
                     }
                 }
@@ -447,7 +453,7 @@ fun ClientsScreen(
                         showDetailDialog = false
                         selectedClient = null
                     }) {
-                        Text("Закрити")
+                        Text(tr("Закрити", "Close"))
                     }
                 }
             }
@@ -460,10 +466,10 @@ fun ClientsScreen(
                 showDeleteConfirmation = false
                 clientToDelete = null
             },
-            title = { Text("Видалити клієнта?") },
+            title = { Text(tr("Видалити клієнта?", "Delete client?")) },
             text = {
                 Text(
-                    text = "Ви впевнені, що хочете видалити \"${clientToDelete!!.name}\"?\nЦю дію не можна скасувати.",
+                    text = "${tr("Ви впевнені, що хочете видалити", "Are you sure you want to delete")} \"${clientToDelete!!.name}\"?\n${tr("Цю дію не можна скасувати.", "This action cannot be undone.")}",
                     color = AccentRed
                 )
             },
@@ -476,11 +482,11 @@ fun ClientsScreen(
                             showDetailDialog = false
                             selectedClient = null
                             clientToDelete = null
-                            Toast.makeText(context, "Клієнта видалено", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, clientDeletedText, Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) {
-                    Text("Видалити", color = AccentRed)
+                    Text(tr("Видалити", "Delete"), color = AccentRed)
                 }
             },
             dismissButton = {
@@ -488,7 +494,7 @@ fun ClientsScreen(
                     showDeleteConfirmation = false
                     clientToDelete = null
                 }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -498,7 +504,7 @@ fun ClientsScreen(
     if (uiState.showAddDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.toggleAddDialog(false) },
-            title = { Text("Додати клієнта") },
+            title = { Text(tr("Додати клієнта", "Add client")) },
             text = {
                 Column(
                     modifier = Modifier
@@ -515,14 +521,14 @@ fun ClientsScreen(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("ПІБ / Нікнейм *") },
+                        label = { Text(tr("ПІБ / Нікнейм *", "Full name / Nickname *")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     )
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
-                        label = { Text("Телефон") },
+                        label = { Text(tr("Телефон", "Phone")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     )
@@ -537,14 +543,14 @@ fun ClientsScreen(
                     OutlinedTextField(
                         value = city,
                         onValueChange = { city = it },
-                        label = { Text("Місто") },
+                        label = { Text(tr("Місто", "City")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     )
                     OutlinedTextField(
                         value = notes,
                         onValueChange = { notes = it },
-                        label = { Text("Нотатки") },
+                        label = { Text(tr("Нотатки", "Notes")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     )
@@ -557,14 +563,14 @@ fun ClientsScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Зберегти")
+                        Text(tr("Зберегти", "Save"))
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { viewModel.toggleAddDialog(false) }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -730,7 +736,7 @@ fun SaleHistoryItem(sale: SaleWithProductName) {
                 )
             }
             Text(
-                text = "${sale.quantity} шт.",
+                text = "${sale.quantity} ${tr("шт.", "pcs")}",
                 fontSize = 12.sp,
                 modifier = Modifier.width(60.dp)
             )

@@ -68,6 +68,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.numisproerp.data.entities.CollectionItem
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
 import com.numisproerp.ui.theme.IOSDesign
@@ -99,7 +100,7 @@ fun MyCollectionScreen(
         ) {
             Icon(
                 Icons.Default.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -110,7 +111,7 @@ fun MyCollectionScreen(
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
             Text(
-                text = "Моя колекція",
+                text = tr("Моя колекція", "My collection"),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -133,7 +134,7 @@ fun MyCollectionScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Кількість позицій", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                        Text(tr("Кількість позицій", "Item count"), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                         Text(
                             "${uiState.items.size}",
                             fontWeight = FontWeight.Bold,
@@ -142,7 +143,7 @@ fun MyCollectionScreen(
                         )
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("Оціночна вартість", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                        Text(tr("Оціночна вартість", "Estimated value"), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                         Text(
                             "${String.format("%,.2f", uiState.totalEstimatedValue)} ₴",
                             fontWeight = FontWeight.Bold,
@@ -163,12 +164,12 @@ fun MyCollectionScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            "Колекція порожня",
+                            tr("Колекція порожня", "Collection is empty"),
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             fontSize = 14.sp
                         )
                         Text(
-                            "Натисніть «+» щоб додати свій перший товар",
+                            tr("Натисніть «+» щоб додати свій перший товар", "Tap «+» to add your first item"),
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                             fontSize = 12.sp,
                             modifier = Modifier.padding(top = 4.dp)
@@ -197,7 +198,7 @@ fun MyCollectionScreen(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Додати товар у колекцію")
+            Icon(Icons.Default.Add, contentDescription = tr("Додати товар у колекцію", "Add item to collection"))
         }
     }
 
@@ -253,21 +254,21 @@ fun MyCollectionScreen(
                             contentScale = ContentScale.Fit
                         )
                     }
-                    InfoLine("Серія", detail.series)
-                    InfoLine("Категорія", detail.category)
-                    InfoLine("Матеріал", detail.material)
-                    InfoLine("Номінал", detail.nominal)
-                    InfoLine("Якість", detail.quality)
-                    InfoLine("Кількість", detail.quantity.toString())
-                    InfoLine("Оціночна вартість", "${String.format("%,.2f", detail.estimatedValue)} ₴")
+                    InfoLine(tr("Серія", "Series"), detail.series)
+                    InfoLine(tr("Категорія", "Category"), detail.category)
+                    InfoLine(tr("Матеріал", "Material"), detail.material)
+                    InfoLine(tr("Номінал", "Nominal"), detail.nominal)
+                    InfoLine(tr("Якість", "Quality"), detail.quality)
+                    InfoLine(tr("Кількість", "Quantity"), detail.quantity.toString())
+                    InfoLine(tr("Оціночна вартість", "Estimated value"), "${String.format("%,.2f", detail.estimatedValue)} ₴")
                     if (detail.description.isNotEmpty()) {
-                        Text("Опис:", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                        Text(tr("Опис:", "Description:"), fontWeight = FontWeight.Medium, fontSize = 13.sp)
                         Text(detail.description, fontSize = 13.sp)
                     }
                 }
             },
             confirmButton = {
-                TextButton(onClick = { detailItem = null }) { Text("Закрити") }
+                TextButton(onClick = { detailItem = null }) { Text(tr("Закрити", "Close")) }
             }
         )
     }
@@ -277,16 +278,16 @@ fun MyCollectionScreen(
     if (toDelete != null) {
         AlertDialog(
             onDismissRequest = { deleteCandidate = null },
-            title = { Text("Видалити з колекції?") },
-            text = { Text("Товар «${toDelete.name}» буде видалено з колекції. Цю дію не можна скасувати.") },
+            title = { Text(tr("Видалити з колекції?", "Delete from collection?")) },
+            text = { Text(tr("Товар «${toDelete.name}» буде видалено з колекції. Цю дію не можна скасувати.", "Item «${toDelete.name}» will be removed from collection. This action cannot be undone.")) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteItem(toDelete)
                     deleteCandidate = null
-                }) { Text("Видалити", color = MaterialTheme.colorScheme.error) }
+                }) { Text(tr("Видалити", "Delete"), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { deleteCandidate = null }) { Text("Скасувати") }
+                TextButton(onClick = { deleteCandidate = null }) { Text(tr("Скасувати", "Cancel")) }
             }
         )
     }
@@ -361,7 +362,7 @@ private fun CollectionItemCard(
                     )
                 }
                 Text(
-                    "Кількість: ${item.quantity} • ${String.format("%,.2f", item.estimatedValue)} ₴",
+                    "${tr("Кількість", "Quantity")}: ${item.quantity} • ${String.format("%,.2f", item.estimatedValue)} ₴",
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -370,14 +371,14 @@ private fun CollectionItemCard(
             IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
                 Icon(
                     Icons.Default.Edit,
-                    contentDescription = "Редагувати",
+                    contentDescription = tr("Редагувати", "Edit"),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
             IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "Видалити",
+                    contentDescription = tr("Видалити", "Delete"),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -428,7 +429,7 @@ private fun AddOrEditCollectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initial == null) "Новий товар колекції" else "Редагувати товар") },
+        title = { Text(if (initial == null) tr("Новий товар колекції", "New collection item") else tr("Редагувати товар", "Edit item")) },
         text = {
             Column(
                 modifier = Modifier
@@ -456,7 +457,7 @@ private fun AddOrEditCollectionDialog(
                                     .data(File(photoPath))
                                     .crossfade(true)
                                     .build(),
-                                contentDescription = "Фото",
+                                contentDescription = tr("Фото", "Photo"),
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
@@ -474,49 +475,49 @@ private fun AddOrEditCollectionDialog(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                         )
                     }) {
-                        Text(if (photoPath.isEmpty()) "Вибрати фото" else "Змінити фото")
+                        Text(if (photoPath.isEmpty()) tr("Вибрати фото", "Pick photo") else tr("Змінити фото", "Change photo"))
                     }
                 }
 
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Назва *") },
+                    label = { Text(tr("Назва *", "Name *")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = series,
                     onValueChange = { series = it },
-                    label = { Text("Серія") },
+                    label = { Text(tr("Серія", "Series")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
-                    label = { Text("Категорія") },
+                    label = { Text(tr("Категорія", "Category")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = material,
                     onValueChange = { material = it },
-                    label = { Text("Матеріал") },
+                    label = { Text(tr("Матеріал", "Material")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = nominal,
                     onValueChange = { nominal = it },
-                    label = { Text("Номінал") },
+                    label = { Text(tr("Номінал", "Nominal")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = quality,
                     onValueChange = { quality = it },
-                    label = { Text("Якість") },
+                    label = { Text(tr("Якість", "Quality")) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -524,7 +525,7 @@ private fun AddOrEditCollectionDialog(
                     OutlinedTextField(
                         value = quantityStr,
                         onValueChange = { quantityStr = it.filter(Char::isDigit) },
-                        label = { Text("Кількість *") },
+                        label = { Text(tr("Кількість *", "Quantity *")) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true
@@ -532,7 +533,7 @@ private fun AddOrEditCollectionDialog(
                     OutlinedTextField(
                         value = estimatedValueStr,
                         onValueChange = { estimatedValueStr = it.filter { c -> c.isDigit() || c == '.' || c == ',' } },
-                        label = { Text("Оціночна, ₴") },
+                        label = { Text(tr("Оціночна, ₴", "Estimated, ₴")) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true
@@ -541,7 +542,7 @@ private fun AddOrEditCollectionDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Опис") },
+                    label = { Text(tr("Опис", "Description")) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
                     maxLines = 4
@@ -564,11 +565,11 @@ private fun AddOrEditCollectionDialog(
                     description, photoPath, est, qty
                 )
             }) {
-                Text(if (initial == null) "Додати" else "Зберегти")
+                Text(if (initial == null) tr("Додати", "Add") else tr("Зберегти", "Save"))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Скасувати") }
+            TextButton(onClick = onDismiss) { Text(tr("Скасувати", "Cancel")) }
         }
     )
 }

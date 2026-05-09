@@ -45,6 +45,7 @@ import com.numisproerp.data.entities.Purchase
 import com.numisproerp.data.entities.Sale
 import com.numisproerp.data.entities.Supplier
 import com.numisproerp.data.entities.Client
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentGreen
 import com.numisproerp.ui.theme.AccentOrange
 import com.numisproerp.ui.theme.IOSDesign
@@ -75,6 +76,11 @@ fun DetailsScreen(
     var supplierNames by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
     var clientNames by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
+    val unknownSupplierText = tr("Невідомий постачальник", "Unknown supplier")
+    val unknownClientText = tr("Невідомий клієнт", "Unknown client")
+    val purchaseLabel = tr("Закупівля", "Purchase")
+    val saleLabel = tr("Продаж", "Sale")
+
     LaunchedEffect(type) {
         kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
             when (type) {
@@ -85,7 +91,7 @@ fun DetailsScreen(
                     val supplierMap = mutableMapOf<String, String>()
                     purchases.map { it.supplierId }.distinct().forEach { supplierId ->
                         val supplier = database.supplierDao().getSupplierById(supplierId)
-                        supplierMap[supplierId] = supplier?.name ?: "Невідомий постачальник"
+                        supplierMap[supplierId] = supplier?.name ?: unknownSupplierText
                     }
                     supplierNames = supplierMap
                 }
@@ -96,7 +102,7 @@ fun DetailsScreen(
                     val clientMap = mutableMapOf<String, String>()
                     sales.map { it.clientId }.distinct().forEach { clientId ->
                         val client = database.clientDao().getClientById(clientId)
-                        clientMap[clientId] = client?.name ?: "Невідомий клієнт"
+                        clientMap[clientId] = client?.name ?: unknownClientText
                     }
                     clientNames = clientMap
                 }
@@ -108,14 +114,14 @@ fun DetailsScreen(
                     val supplierMap = mutableMapOf<String, String>()
                     purchases.map { it.supplierId }.distinct().forEach { supplierId ->
                         val supplier = database.supplierDao().getSupplierById(supplierId)
-                        supplierMap[supplierId] = supplier?.name ?: "Невідомий постачальник"
+                        supplierMap[supplierId] = supplier?.name ?: unknownSupplierText
                     }
                     supplierNames = supplierMap
                     // Завантажуємо назви клієнтів
                     val clientMap = mutableMapOf<String, String>()
                     sales.map { it.clientId }.distinct().forEach { clientId ->
                         val client = database.clientDao().getClientById(clientId)
-                        clientMap[clientId] = client?.name ?: "Невідомий клієнт"
+                        clientMap[clientId] = client?.name ?: unknownClientText
                     }
                     clientNames = clientMap
                 }
@@ -137,7 +143,7 @@ fun DetailsScreen(
         ) {
             Icon(
                 Icons.Default.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -175,7 +181,7 @@ fun DetailsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Загальна сума:",
+                            text = "${tr("Загальна сума", "Total amount")}:",
                             fontSize = 16.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
                         )
@@ -191,11 +197,11 @@ fun DetailsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (type == "purchases" && purchases.isEmpty()) {
-                    Text(text = "Немає даних про закупівлі", modifier = Modifier.fillMaxWidth())
+                    Text(text = tr("Немає даних про закупівлі", "No purchase data"), modifier = Modifier.fillMaxWidth())
                 } else if (type == "profit" && sales.isEmpty()) {
-                    Text(text = "Немає даних про продажі", modifier = Modifier.fillMaxWidth())
+                    Text(text = tr("Немає даних про продажі", "No sales data"), modifier = Modifier.fillMaxWidth())
                 } else if (type == "balance" && purchases.isEmpty() && sales.isEmpty()) {
-                    Text(text = "Немає даних про операції", modifier = Modifier.fillMaxWidth())
+                    Text(text = tr("Немає даних про операції", "No transaction data"), modifier = Modifier.fillMaxWidth())
                 } else {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -204,8 +210,8 @@ fun DetailsScreen(
                             items(purchases) { purchase ->
                                 TransactionDetailItem(
                                     date = purchase.date,
-                                    description = "Закупівля",
-                                    counterparty = supplierNames[purchase.supplierId] ?: "Невідомий постачальник",
+                                    description = purchaseLabel,
+                                    counterparty = supplierNames[purchase.supplierId] ?: unknownSupplierText,
                                     amount = -purchase.totalAmount,
                                     isPurchase = true
                                 )
@@ -215,8 +221,8 @@ fun DetailsScreen(
                             items(sales) { sale ->
                                 TransactionDetailItem(
                                     date = sale.date,
-                                    description = "Продаж",
-                                    counterparty = clientNames[sale.clientId] ?: "Невідомий клієнт",
+                                    description = saleLabel,
+                                    counterparty = clientNames[sale.clientId] ?: unknownClientText,
                                     amount = sale.totalAmount,
                                     isPurchase = false
                                 )

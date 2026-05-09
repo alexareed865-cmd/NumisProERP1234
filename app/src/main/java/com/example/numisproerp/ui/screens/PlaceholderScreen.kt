@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.numisproerp.ui.i18n.tr
 
 @Composable
 fun PlaceholderScreen(title: String, navController: NavHostController? = null) {
@@ -21,7 +22,7 @@ fun PlaceholderScreen(title: String, navController: NavHostController? = null) {
         Text(text = title, fontSize = 20.sp)
         if (navController != null) {
             TextButton(onClick = { navController.popBackStack() }) {
-                Text("Повернутися назад")
+                Text(tr("Повернутися назад", "Go back"))
             }
         }
     }

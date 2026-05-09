@@ -27,9 +27,25 @@ enum class AppTheme {
 }
 
 /**
+ * Мова інтерфейсу. Перемикається миттєво без рестарту Activity через
+ * `LocalAppLanguage` CompositionLocal та helper [com.numisproerp.ui.i18n.tr].
+ */
+enum class AppLanguage {
+    UA,
+    EN;
+
+    companion object {
+        fun fromKey(key: String?): AppLanguage = when (key) {
+            EN.name -> EN
+            else -> UA
+        }
+    }
+}
+
+/**
  * Простий менеджер користувацьких налаштувань на основі SharedPreferences.
  * Тримає Compose-friendly реактивний стан через [MutableState], щоб тема
- * перемикалася миттєво без рестарту Activity.
+ * та мова перемикалися миттєво без рестарту Activity.
  */
 @Singleton
 class SettingsManager @Inject constructor(
@@ -51,8 +67,22 @@ class SettingsManager @Inject constructor(
             prefs.edit().putString(KEY_THEME, value.name).apply()
         }
 
+    private val _language: MutableState<AppLanguage> =
+        mutableStateOf(AppLanguage.fromKey(prefs.getString(KEY_LANGUAGE, null)))
+
+    val languageState: MutableState<AppLanguage>
+        get() = _language
+
+    var language: AppLanguage
+        get() = _language.value
+        set(value) {
+            _language.value = value
+            prefs.edit().putString(KEY_LANGUAGE, value.name).apply()
+        }
+
     companion object {
         private const val PREFS_NAME = "numispro_settings"
         private const val KEY_THEME = "app_theme"
+        private const val KEY_LANGUAGE = "app_language"
     }
 }

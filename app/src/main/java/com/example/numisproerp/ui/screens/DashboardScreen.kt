@@ -48,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.numisproerp.R
 import com.numisproerp.data.settings.AppTheme
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.navigation.Screen
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
@@ -125,12 +126,13 @@ fun DashboardContent(
         }
 
         item {
+            val balanceTitle = tr("Загальний баланс", "Total balance")
             StatsCardClickable(
-                title = "Загальний баланс",
+                title = balanceTitle,
                 value = String.format("%,.2f ₴", data.totalBalance),
                 valueColor = if (data.totalBalance >= 0) AccentGreen else AccentRed,
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                onClick = { onNavigateToDetails("balance", "Загальний баланс") }
+                onClick = { onNavigateToDetails("balance", balanceTitle) }
             )
         }
 
@@ -139,27 +141,29 @@ fun DashboardContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                val purchasesTitle = tr("Закупівлі", "Purchases")
+                val profitTitle = tr("Прибуток", "Profit")
                 MonthlyStatCardClickable(
                     modifier = Modifier.weight(1f),
-                    title = "Закупівлі",
+                    title = purchasesTitle,
                     value = String.format("%,.2f ₴", data.monthlyPurchases),
                     icon = Icons.Outlined.LocalAtm,
                     iconColor = AccentOrange,
-                    onClick = { onNavigateToDetails("purchases", "Закупівлі") }
+                    onClick = { onNavigateToDetails("purchases", purchasesTitle) }
                 )
                 MonthlyStatCardClickable(
                     modifier = Modifier.weight(1f),
-                    title = "Прибуток",
+                    title = profitTitle,
                     value = String.format("%,.2f ₴", data.monthlyProfit),
                     icon = Icons.Outlined.BarChart,
                     iconColor = AccentGreen,
-                    onClick = { onNavigateToDetails("profit", "Прибуток") }
+                    onClick = { onNavigateToDetails("profit", profitTitle) }
                 )
             }
         }
 
         item {
-            SectionHeader(title = "Швидкий доступ")
+            SectionHeader(title = tr("Швидкий доступ", "Quick access"))
         }
 
         item {
@@ -181,7 +185,7 @@ fun DashboardContent(
         }
 
         item {
-            SectionHeader(title = "Останні операції")
+            SectionHeader(title = tr("Останні операції", "Recent operations"))
         }
 
         items(data.recentTransactions) { transaction ->
@@ -214,7 +218,7 @@ private fun DashboardHeader(currentDate: String) {
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "NumisProERP — облік та каталогізація",
+                    text = tr("NumisProERP — облік та каталогізація", "NumisProERP — accounting & catalog"),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
@@ -235,7 +239,7 @@ private fun DashboardHeader(currentDate: String) {
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Облік та каталогізація",
+                text = tr("Облік та каталогізація", "Accounting & catalog"),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
@@ -351,25 +355,25 @@ fun QuickAccessRow(
         QuickAccessButton(
             icon = Icons.Outlined.LocalAtm,
             tileRes = R.drawable.tile_purchase,
-            label = "Закупівля",
+            label = tr("Закупівля", "Purchase"),
             onClick = onPurchaseClick
         )
         QuickAccessButton(
             icon = Icons.Filled.ShoppingCart,
             tileRes = R.drawable.tile_sale,
-            label = "Продаж",
+            label = tr("Продаж", "Sale"),
             onClick = onSaleClick
         )
         QuickAccessButton(
             icon = Icons.Filled.Store,
             tileRes = R.drawable.tile_stock,
-            label = "Склад",
+            label = tr("Склад", "Stock"),
             onClick = onStockClick
         )
         QuickAccessButton(
             icon = Icons.Filled.People,
             tileRes = R.drawable.tile_clients,
-            label = "Клієнти",
+            label = tr("Клієнти", "Clients"),
             onClick = onClientsClick
         )
     }
@@ -389,25 +393,25 @@ fun QuickAccessRow2(
         QuickAccessButton(
             icon = Icons.Outlined.BarChart,
             tileRes = R.drawable.tile_reports,
-            label = "Звіти",
+            label = tr("Звіти", "Reports"),
             onClick = onReportsClick
         )
         QuickAccessButton(
             icon = Icons.Filled.People,
             tileRes = R.drawable.tile_suppliers,
-            label = "Постачальники",
+            label = tr("Постачальники", "Suppliers"),
             onClick = onSuppliersClick
         )
         QuickAccessButton(
             icon = Icons.Outlined.Receipt,
             tileRes = R.drawable.tile_expenses,
-            label = "Витрати",
+            label = tr("Витрати", "Expenses"),
             onClick = onExpensesClick
         )
         QuickAccessButton(
             icon = Icons.Outlined.BarChart,
             tileRes = R.drawable.tile_collection,
-            label = "Моя колекція",
+            label = tr("Моя колекція", "Collection"),
             onClick = onDocumentsClick
         )
     }

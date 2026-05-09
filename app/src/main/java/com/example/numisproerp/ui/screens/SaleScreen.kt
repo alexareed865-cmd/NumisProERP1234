@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.numisproerp.data.dao.ClientForSelection
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.data.dao.ProductInStock
 import com.numisproerp.data.entities.Client
 import com.numisproerp.data.entities.Sale
@@ -123,6 +124,11 @@ fun SaleScreen(
     val totalSaleAmount = cartItems.sumOf { it.totalAmount }
     val totalNetProfit = cartItems.sumOf { it.netProfit }
 
+    val saleDoneText = tr("Продаж проведено успішно", "Sale completed successfully")
+    val notEnoughStockText = tr("Недостатньо товару на складі", "Not enough item in stock")
+    val fillAllFieldsText = tr("Заповніть всі поля", "Fill in all fields")
+    val clientAddedText = tr("Клієнта додано", "Client added")
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -142,13 +148,13 @@ fun SaleScreen(
             ) {
                 Icon(
                     Icons.Default.ArrowBack,
-                    contentDescription = "Назад",
+                    contentDescription = tr("Назад", "Back"),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
 
             Text(
-                text = "Продаж",
+                text = tr("Продаж", "Sale"),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -172,12 +178,12 @@ fun SaleScreen(
                     value = uiState.clientSearchQuery,
                     onValueChange = { viewModel.updateClientSearchQuery(it) },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Пошук клієнта за ім'ям...") },
+                    placeholder = { Text(tr("Пошук клієнта за ім'ям...", "Search client by name...")) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     trailingIcon = {
                         if (uiState.clientSearchQuery.isNotEmpty()) {
                             IconButton(onClick = { viewModel.updateClientSearchQuery("") }) {
-                                Icon(Icons.Outlined.Clear, contentDescription = "Очистити")
+                                Icon(Icons.Outlined.Clear, contentDescription = tr("Очистити", "Clear"))
                             }
                         }
                     },
@@ -204,7 +210,7 @@ fun SaleScreen(
                                     ) {
                                         Text(client.name, fontWeight = FontWeight.Medium)
                                         if (uiState.selectedClientId == client.clientId) {
-                                            Text("Вибрано", color = AccentGreen, fontSize = 12.sp)
+                                            Text(tr("Вибрано", "Selected"), color = AccentGreen, fontSize = 12.sp)
                                         }
                                     }
                                 }
@@ -237,11 +243,11 @@ fun SaleScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Вибрано: ${selectedClient.name}",
+                                        text = "${tr("Вибрано", "Selected")}: ${selectedClient.name}",
                                         fontWeight = FontWeight.Bold
                                     )
                                     TextButton(onClick = { viewModel.updateSelectedClient("") }) {
-                                        Text("Змінити", color = AccentRed)
+                                        Text(tr("Змінити", "Change"), color = AccentRed)
                                     }
                                 }
                             }
@@ -249,7 +255,7 @@ fun SaleScreen(
                                 onClick = { showClientDialog = true },
                                 modifier = Modifier.size(56.dp)
                             ) {
-                                Icon(Icons.Default.Person, contentDescription = "Новий клієнт")
+                                Icon(Icons.Default.Person, contentDescription = tr("Новий клієнт", "New client"))
                             }
                         }
                     }
@@ -262,7 +268,7 @@ fun SaleScreen(
                             onClick = { showClientDialog = true },
                             modifier = Modifier.size(56.dp)
                         ) {
-                            Icon(Icons.Default.Person, contentDescription = "Новий клієнт")
+                            Icon(Icons.Default.Person, contentDescription = tr("Новий клієнт", "New client"))
                         }
                     }
                 }
@@ -274,7 +280,7 @@ fun SaleScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Товари в продажу",
+                        text = tr("Товари в продажу", "Items in sale"),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -289,8 +295,8 @@ fun SaleScreen(
                         },
                         enabled = uiState.selectedClientId.isNotEmpty()
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Додати товар")
-                        Text("Додати", modifier = Modifier.padding(start = 4.dp))
+                        Icon(Icons.Default.Add, contentDescription = tr("Додати товар", "Add item"))
+                        Text(tr("Додати", "Add"), modifier = Modifier.padding(start = 4.dp))
                     }
                 }
 
@@ -304,7 +310,7 @@ fun SaleScreen(
                         shape = RoundedCornerShape(IOSDesign.CardCornerRadius)
                     ) {
                         Text(
-                            text = "Кошик порожній. Додайте товари",
+                            text = tr("Кошик порожній. Додайте товари", "Cart is empty. Add items"),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
@@ -343,7 +349,7 @@ fun SaleScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Загальна сума:",
+                                text = tr("Загальна сума:", "Total amount:"),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -359,7 +365,7 @@ fun SaleScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Очікуваний прибуток:",
+                                text = tr("Очікуваний прибуток:", "Expected profit:"),
                                 fontSize = 14.sp
                             )
                             Text(
@@ -395,7 +401,7 @@ fun SaleScreen(
                                 cartItems = emptyList()
                                 viewModel.clearSuccessMessage()
                                 navController.popBackStack()
-                                Toast.makeText(context, "Продаж проведено успішно", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, saleDoneText, Toast.LENGTH_LONG).show()
                             }
                         }
                     },
@@ -404,7 +410,7 @@ fun SaleScreen(
                     enabled = cartItems.isNotEmpty() && uiState.selectedClientId.isNotEmpty()
                 ) {
                     Icon(Icons.Default.Sell, contentDescription = null)
-                    Text("Провести продаж", modifier = Modifier.padding(start = 8.dp))
+                    Text(tr("Провести продаж", "Submit sale"), modifier = Modifier.padding(start = 8.dp))
                 }
 
                 if (uiState.showSuccessMessage) {
@@ -421,7 +427,7 @@ fun SaleScreen(
     if (showAddProductDialog) {
         AlertDialog(
             onDismissRequest = { showAddProductDialog = false },
-            title = { Text("Додати товар") },
+            title = { Text(tr("Додати товар", "Add item")) },
             text = {
                 Column(
                     modifier = Modifier
@@ -438,7 +444,7 @@ fun SaleScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Пошук товару...") },
+                        placeholder = { Text(tr("Пошук товару...", "Search item...")) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
@@ -446,7 +452,7 @@ fun SaleScreen(
                                     searchQuery = ""
                                     selectedProductForCart = null
                                 }) {
-                                    Icon(Icons.Outlined.Clear, contentDescription = "Очистити")
+                                    Icon(Icons.Outlined.Clear, contentDescription = tr("Очистити", "Clear"))
                                 }
                             }
                         },
@@ -477,7 +483,7 @@ fun SaleScreen(
                                                 fontWeight = FontWeight.Medium
                                             )
                                             Text(
-                                                "В наявності: ${product.currentStock} шт. • ${product.series}",
+                                                "${tr("В наявності", "In stock")}: ${product.currentStock} ${tr("шт.", "pcs")} • ${product.series}",
                                                 fontSize = 12.sp,
                                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                             )
@@ -490,7 +496,7 @@ fun SaleScreen(
 
                     if (searchQuery.isNotEmpty() && filteredProducts.isEmpty()) {
                         Text(
-                            text = "Товарів не знайдено або немає в наявності",
+                            text = tr("Товарів не знайдено або немає в наявності", "No items found or none in stock"),
                             modifier = Modifier.padding(8.dp),
                             color = AccentRed,
                             fontSize = 14.sp
@@ -499,12 +505,12 @@ fun SaleScreen(
 
                     if (selectedProductForCart != null) {
                         Text(
-                            text = "Вибрано: ${selectedProductForCart!!.name}",
+                            text = "${tr("Вибрано", "Selected")}: ${selectedProductForCart!!.name}",
                             color = AccentGreen
                         )
 
                         Text(
-                            text = "Доступно на складі: ${selectedProductForCart!!.currentStock} шт.",
+                            text = "${tr("Доступно на складі", "Available in stock")}: ${selectedProductForCart!!.currentStock} ${tr("шт.", "pcs")}",
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
@@ -513,12 +519,12 @@ fun SaleScreen(
                             value = cartQuantity,
                             onValueChange = { cartQuantity = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Кількість") },
-                            placeholder = { Text("шт.") },
+                            label = { Text(tr("Кількість", "Quantity")) },
+                            placeholder = { Text(tr("шт.", "pcs")) },
                             isError = cartQuantity.toIntOrNull()?.let { it > (selectedProductForCart?.currentStock ?: 0) } == true,
                             supportingText = {
                                 if (cartQuantity.toIntOrNull()?.let { it > (selectedProductForCart?.currentStock ?: 0) } == true) {
-                                    Text("Недостатньо на складі", color = AccentRed)
+                                    Text(tr("Недостатньо на складі", "Not enough in stock"), color = AccentRed)
                                 }
                             },
                             shape = RoundedCornerShape(12.dp)
@@ -528,7 +534,7 @@ fun SaleScreen(
                             value = cartPrice,
                             onValueChange = { cartPrice = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Ціна продажу за одиницю") },
+                            label = { Text(tr("Ціна продажу за одиницю", "Sale price per unit")) },
                             placeholder = { Text("₴") },
                             shape = RoundedCornerShape(12.dp)
                         )
@@ -537,7 +543,7 @@ fun SaleScreen(
                             value = cartAdditionalCosts,
                             onValueChange = { cartAdditionalCosts = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Витрати на упаковку/доставку") },
+                            label = { Text(tr("Витрати на упаковку/доставку", "Packaging/Delivery costs")) },
                             placeholder = { Text("₴ (необов'язково)") },
                             shape = RoundedCornerShape(12.dp)
                         )
@@ -570,10 +576,10 @@ fun SaleScreen(
                                 cartAdditionalCosts = ""
                                 showAddProductDialog = false
                             } else {
-                                Toast.makeText(context, "Недостатньо товару на складі", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, notEnoughStockText, Toast.LENGTH_SHORT).show()
                             }
                         } else {
-                            Toast.makeText(context, "Заповніть всі поля", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, fillAllFieldsText, Toast.LENGTH_SHORT).show()
                         }
                     },
                     enabled = selectedProductForCart != null &&
@@ -583,12 +589,12 @@ fun SaleScreen(
                             cartPrice.toDoubleOrNull()!! > 0 &&
                             (cartQuantity.toIntOrNull() ?: 0) <= (selectedProductForCart?.currentStock ?: 0)
                 ) {
-                    Text("Додати")
+                    Text(tr("Додати", "Add"))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showAddProductDialog = false }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -598,7 +604,7 @@ fun SaleScreen(
     if (showClientDialog) {
         AlertDialog(
             onDismissRequest = { showClientDialog = false },
-            title = { Text("Новий клієнт") },
+            title = { Text(tr("Новий клієнт", "New client")) },
             text = {
                 Column(
                     modifier = Modifier
@@ -609,14 +615,14 @@ fun SaleScreen(
                     OutlinedTextField(
                         value = newClientName,
                         onValueChange = { newClientName = it },
-                        label = { Text("Ім'я / Назва *") },
+                        label = { Text(tr("Ім'я / Назва *", "Name *")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
                     OutlinedTextField(
                         value = newClientPhone,
                         onValueChange = { newClientPhone = it },
-                        label = { Text("Телефон") },
+                        label = { Text(tr("Телефон", "Phone")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -630,14 +636,14 @@ fun SaleScreen(
                     OutlinedTextField(
                         value = newClientCity,
                         onValueChange = { newClientCity = it },
-                        label = { Text("Місто") },
+                        label = { Text(tr("Місто", "City")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
                     OutlinedTextField(
                         value = newClientNotes,
                         onValueChange = { newClientNotes = it },
-                        label = { Text("Нотатки") },
+                        label = { Text(tr("Нотатки", "Notes")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -664,17 +670,17 @@ fun SaleScreen(
                                 newClientCity = ""
                                 newClientNotes = ""
                                 showClientDialog = false
-                                Toast.makeText(context, "Клієнта додано", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, clientAddedText, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
                 ) {
-                    Text("Зберегти")
+                    Text(tr("Зберегти", "Save"))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClientDialog = false }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -710,7 +716,7 @@ fun SaleCartItemCard(
                 )
                 if (item.additionalCosts > 0) {
                     Text(
-                        text = "Витрати: ${String.format("%,.2f", item.additionalCosts)} ₴",
+                        text = "${tr("Витрати", "Costs")}: ${String.format("%,.2f", item.additionalCosts)} ₴",
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
@@ -719,19 +725,19 @@ fun SaleCartItemCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "Сума: ${String.format("%,.2f", item.totalAmount)} ₴",
+                        text = "${tr("Сума", "Sum")}: ${String.format("%,.2f", item.totalAmount)} ₴",
                         fontSize = 12.sp,
                         color = AccentGreen
                     )
                     Text(
-                        text = "Прибуток: ${String.format("%,.2f", item.netProfit)} ₴",
+                        text = "${tr("Прибуток", "Profit")}: ${String.format("%,.2f", item.netProfit)} ₴",
                         fontSize = 12.sp,
                         color = if (item.netProfit > 0) AccentGreen else AccentRed
                     )
                 }
             }
             IconButton(onClick = onRemove) {
-                Icon(Icons.Default.Close, contentDescription = "Видалити")
+                Icon(Icons.Default.Close, contentDescription = tr("Видалити", "Delete"))
             }
         }
     }

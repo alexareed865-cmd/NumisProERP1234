@@ -41,7 +41,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.CompositionLocalProvider
 import com.numisproerp.data.settings.SettingsManager
+import com.numisproerp.ui.i18n.LocalAppLanguage
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.navigation.NavGraph
 import com.numisproerp.ui.navigation.Screen
 import com.numisproerp.ui.theme.NumisProERPTheme
@@ -61,12 +64,15 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val theme by settingsManager.themeState
+            val language by settingsManager.languageState
             NumisProERPTheme(appTheme = theme) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    NumisProERPNavigation()
+                CompositionLocalProvider(LocalAppLanguage provides language) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        NumisProERPNavigation()
+                    }
                 }
             }
         }
@@ -87,17 +93,18 @@ fun NumisProERPNavigation() {
     val showBars = currentRoute == Screen.Dashboard.route
 
     val drawerItems = listOf(
-        DrawerItem("Головне меню", Screen.Dashboard.route, false),
-        DrawerItem("Товари", Screen.Products.route, false),
-        DrawerItem("Документи", Screen.Documents.route, false),
-        DrawerItem("Витрати", Screen.Expenses.route, false),
-        DrawerItem("Звіти", Screen.Reports.route, false),
-        DrawerItem("Постачальники", Screen.Suppliers.route, false),
-        DrawerItem("Клієнти", Screen.Clients.route, false),
-        DrawerItem("Списання", Screen.Writeoff.route, false),
-        DrawerItem("Історія", Screen.History.route, false),
-        DrawerItem("Налаштування", Screen.Settings.route, false)
+        DrawerItem(tr("Головне меню", "Home"), Screen.Dashboard.route, false),
+        DrawerItem(tr("Товари", "Products"), Screen.Products.route, false),
+        DrawerItem(tr("Документи", "Documents"), Screen.Documents.route, false),
+        DrawerItem(tr("Витрати", "Expenses"), Screen.Expenses.route, false),
+        DrawerItem(tr("Звіти", "Reports"), Screen.Reports.route, false),
+        DrawerItem(tr("Постачальники", "Suppliers"), Screen.Suppliers.route, false),
+        DrawerItem(tr("Клієнти", "Clients"), Screen.Clients.route, false),
+        DrawerItem(tr("Списання", "Writeoff"), Screen.Writeoff.route, false),
+        DrawerItem(tr("Історія", "History"), Screen.History.route, false),
+        DrawerItem(tr("Налаштування", "Settings"), Screen.Settings.route, false)
     )
+    val sectionInDevText = tr("Розділ в розробці", "Section in development")
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -110,7 +117,7 @@ fun NumisProERPNavigation() {
                         onClick = {
                             scope.launch { drawerState.close() }
                             if (item.isPlaceholder) {
-                                Toast.makeText(context, "Розділ в розробці", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, sectionInDevText, Toast.LENGTH_SHORT).show()
                             } else {
                                 navController.navigate(item.route) {
                                     popUpTo(Screen.Dashboard.route) { inclusive = false }
@@ -153,20 +160,22 @@ fun NumisProERPNavigation() {
 @Composable
 fun TopBar(onMenuClick: () -> Unit) {
     val context = LocalContext.current
+    val helpInDev = tr("Довідка в розробці", "Help in development")
+    val notificationsInDev = tr("Сповіщення в розробці", "Notifications in development")
     TopAppBar(
         title = { Text("NumisProERP") },
         navigationIcon = {
             IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.Menu, contentDescription = "Меню")
+                Icon(Icons.Default.Menu, contentDescription = tr("Меню", "Menu"))
             }
         },
         actions = {
-            IconButton(onClick = { Toast.makeText(context, "Довідка в розробці", Toast.LENGTH_SHORT).show() }) {
-                Icon(Icons.Outlined.Help, contentDescription = "Довідка")
+            IconButton(onClick = { Toast.makeText(context, helpInDev, Toast.LENGTH_SHORT).show() }) {
+                Icon(Icons.Outlined.Help, contentDescription = tr("Довідка", "Help"))
             }
-            IconButton(onClick = { Toast.makeText(context, "Сповіщення в розробці", Toast.LENGTH_SHORT).show() }) {
+            IconButton(onClick = { Toast.makeText(context, notificationsInDev, Toast.LENGTH_SHORT).show() }) {
                 BadgedBox(badge = { Badge { Text(" ") } }) {
-                    Icon(Icons.Default.Notifications, contentDescription = "Сповіщення")
+                    Icon(Icons.Default.Notifications, contentDescription = tr("Сповіщення", "Notifications"))
                 }
             }
         },
@@ -178,11 +187,12 @@ fun TopBar(onMenuClick: () -> Unit) {
 fun BottomBar(navController: NavHostController) {
     val context = LocalContext.current
     val items = listOf(
-        BottomNavItem("Головна", Icons.Default.Home, Screen.Dashboard.route, false),
-        BottomNavItem("Каталог", Icons.Default.Store, Screen.Catalog.route, false),
-        BottomNavItem("Склад", Icons.Default.Store, Screen.Stock.route, false),
-        BottomNavItem("Налаштування", Icons.Default.Settings, Screen.Settings.route, false)
+        BottomNavItem(tr("Головна", "Home"), Icons.Default.Home, Screen.Dashboard.route, false),
+        BottomNavItem(tr("Каталог", "Catalog"), Icons.Default.Store, Screen.Catalog.route, false),
+        BottomNavItem(tr("Склад", "Stock"), Icons.Default.Store, Screen.Stock.route, false),
+        BottomNavItem(tr("Налаштування", "Settings"), Icons.Default.Settings, Screen.Settings.route, false)
     )
+    val inDevSuffix = tr(" в розробці", " in development")
 
     NavigationBar {
         items.forEach { item ->
@@ -190,7 +200,7 @@ fun BottomBar(navController: NavHostController) {
                 selected = false,
                 onClick = {
                     if (item.isPlaceholder) {
-                        Toast.makeText(context, "${item.title} в розробці", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "${item.title}$inDevSuffix", Toast.LENGTH_SHORT).show()
                     } else {
                         navController.navigate(item.route) {
                             popUpTo(Screen.Dashboard.route) { inclusive = false }

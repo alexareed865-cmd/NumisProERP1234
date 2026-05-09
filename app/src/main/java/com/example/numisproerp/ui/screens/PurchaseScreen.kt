@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.numisproerp.data.dao.ProductForSelection
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.data.dao.SupplierForSelection
 import com.numisproerp.data.entities.Purchase
 import com.numisproerp.data.entities.Supplier
@@ -115,6 +116,9 @@ fun PurchaseScreen(
 
     val totalPurchaseAmount = cartItems.sumOf { it.totalAmount }
 
+    val purchaseDoneText = tr("Закупівлю проведено успішно", "Purchase completed successfully")
+    val supplierAddedText = tr("Постачальника додано", "Supplier added")
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -134,13 +138,13 @@ fun PurchaseScreen(
             ) {
                 Icon(
                     Icons.Default.ArrowBack,
-                    contentDescription = "Назад",
+                    contentDescription = tr("Назад", "Back"),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
 
             Text(
-                text = "Закупівля",
+                text = tr("Закупівля", "Purchase"),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -174,7 +178,7 @@ fun PurchaseScreen(
                         onClick = { showSupplierDialog = true },
                         modifier = Modifier.size(56.dp)
                     ) {
-                        Icon(Icons.Default.Person, contentDescription = "Новий постачальник")
+                        Icon(Icons.Default.Person, contentDescription = tr("Новий постачальник", "New supplier"))
                     }
                 }
 
@@ -184,7 +188,7 @@ fun PurchaseScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Товари в закупівлі",
+                        text = tr("Товари в закупівлі", "Items in purchase"),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -192,8 +196,8 @@ fun PurchaseScreen(
                         onClick = { showAddProductDialog = true },
                         enabled = uiState.selectedSupplierId.isNotEmpty()
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Додати товар")
-                        Text("Додати", modifier = Modifier.padding(start = 4.dp))
+                        Icon(Icons.Default.Add, contentDescription = tr("Додати товар", "Add item"))
+                        Text(tr("Додати", "Add"), modifier = Modifier.padding(start = 4.dp))
                     }
                 }
 
@@ -206,7 +210,7 @@ fun PurchaseScreen(
                         shape = RoundedCornerShape(IOSDesign.CardCornerRadius)
                     ) {
                         Text(
-                            text = "Кошик порожній. Додайте товари",
+                            text = tr("Кошик порожній. Додайте товари", "Cart is empty. Add items"),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
@@ -241,7 +245,7 @@ fun PurchaseScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Загальна сума:",
+                            text = tr("Загальна сума:", "Total amount:"),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -276,7 +280,7 @@ fun PurchaseScreen(
                                 cartItems = emptyList()
                                 viewModel.clearSuccessMessage()
                                 navController.popBackStack()
-                                Toast.makeText(context, "Закупівлю проведено успішно", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, purchaseDoneText, Toast.LENGTH_LONG).show()
                             }
                         }
                     },
@@ -285,7 +289,7 @@ fun PurchaseScreen(
                     enabled = cartItems.isNotEmpty() && uiState.selectedSupplierId.isNotEmpty()
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
-                    Text("Провести закупівлю", modifier = Modifier.padding(start = 8.dp))
+                    Text(tr("Провести закупівлю", "Submit purchase"), modifier = Modifier.padding(start = 8.dp))
                 }
 
                 if (uiState.showSuccessMessage) {
@@ -302,7 +306,7 @@ fun PurchaseScreen(
     if (showAddProductDialog) {
         AlertDialog(
             onDismissRequest = { showAddProductDialog = false },
-            title = { Text("Додати товар") },
+            title = { Text(tr("Додати товар", "Add item")) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
@@ -314,7 +318,7 @@ fun PurchaseScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Пошук товару...") },
+                        placeholder = { Text(tr("Пошук товару...", "Search item...")) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
@@ -322,7 +326,7 @@ fun PurchaseScreen(
                                     searchQuery = ""
                                     selectedProductForCart = null
                                 }) {
-                                    Icon(Icons.Outlined.Clear, contentDescription = "Очистити")
+                                    Icon(Icons.Outlined.Clear, contentDescription = tr("Очистити", "Clear"))
                                 }
                             }
                         },
@@ -366,7 +370,7 @@ fun PurchaseScreen(
 
                     if (selectedProductForCart != null) {
                         Text(
-                            text = "Вибрано: ${selectedProductForCart!!.name}",
+                            text = "${tr("Вибрано", "Selected")}: ${selectedProductForCart!!.name}",
                             color = AccentGreen
                         )
 
@@ -374,8 +378,8 @@ fun PurchaseScreen(
                             value = cartQuantity,
                             onValueChange = { cartQuantity = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Кількість") },
-                            placeholder = { Text("шт.") },
+                            label = { Text(tr("Кількість", "Quantity")) },
+                            placeholder = { Text(tr("шт.", "pcs")) },
                             shape = RoundedCornerShape(12.dp)
                         )
 
@@ -383,7 +387,7 @@ fun PurchaseScreen(
                             value = cartPrice,
                             onValueChange = { cartPrice = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Ціна за одиницю") },
+                            label = { Text(tr("Ціна за одиницю", "Unit price")) },
                             placeholder = { Text("₴") },
                             shape = RoundedCornerShape(12.dp)
                         )
@@ -392,7 +396,7 @@ fun PurchaseScreen(
                             value = cartAdditionalCosts,
                             onValueChange = { cartAdditionalCosts = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Додаткові витрати") },
+                            label = { Text(tr("Додаткові витрати", "Additional costs")) },
                             placeholder = { Text("₴ (необов'язково)") },
                             shape = RoundedCornerShape(12.dp)
                         )
@@ -428,12 +432,12 @@ fun PurchaseScreen(
                             cartPrice.toDoubleOrNull() != null &&
                             cartPrice.toDoubleOrNull()!! > 0
                 ) {
-                    Text("Додати")
+                    Text(tr("Додати", "Add"))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showAddProductDialog = false }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -443,34 +447,34 @@ fun PurchaseScreen(
     if (showSupplierDialog) {
         AlertDialog(
             onDismissRequest = { showSupplierDialog = false },
-            title = { Text("Новий постачальник") },
+            title = { Text(tr("Новий постачальник", "New supplier")) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = newSupplierName,
                         onValueChange = { newSupplierName = it },
-                        label = { Text("Назва / Ім'я *") },
+                        label = { Text(tr("Назва / Ім'я *", "Name *")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
                     OutlinedTextField(
                         value = newSupplierContact,
                         onValueChange = { newSupplierContact = it },
-                        label = { Text("Контактні дані") },
+                        label = { Text(tr("Контактні дані", "Contact info")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
                     OutlinedTextField(
                         value = newSupplierType,
                         onValueChange = { newSupplierType = it },
-                        label = { Text("Тип") },
+                        label = { Text(tr("Тип", "Type")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
                     OutlinedTextField(
                         value = newSupplierComment,
                         onValueChange = { newSupplierComment = it },
-                        label = { Text("Коментар") },
+                        label = { Text(tr("Коментар", "Comment")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -495,17 +499,17 @@ fun PurchaseScreen(
                                 newSupplierType = ""
                                 newSupplierComment = ""
                                 showSupplierDialog = false
-                                Toast.makeText(context, "Постачальника додано", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, supplierAddedText, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
                 ) {
-                    Text("Зберегти")
+                    Text(tr("Зберегти", "Save"))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showSupplierDialog = false }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -540,13 +544,13 @@ fun CartItemCard(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
                 Text(
-                    text = "Сума: ${String.format("%,.2f", item.totalAmount)} ₴",
+                    text = "${tr("Сума", "Sum")}: ${String.format("%,.2f", item.totalAmount)} ₴",
                     fontSize = 12.sp,
                     color = AccentGreen
                 )
             }
             IconButton(onClick = onRemove) {
-                Icon(Icons.Default.Close, contentDescription = "Видалити")
+                Icon(Icons.Default.Close, contentDescription = tr("Видалити", "Delete"))
             }
         }
     }
@@ -589,8 +593,8 @@ fun SupplierDropdown(
                     onSupplierSelected("")
                 }
             },
-            label = { Text("Постачальник *") },
-            placeholder = { Text("Введіть для пошуку...") },
+            label = { Text(tr("Постачальник *", "Supplier *")) },
+            placeholder = { Text(tr("Введіть для пошуку...", "Type to search...")) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = modifier.menuAnchor(),
             shape = RoundedCornerShape(12.dp),
@@ -634,7 +638,7 @@ fun ProductDropdown(
             value = selectedProduct?.name ?: "",
             onValueChange = {},
             readOnly = true,
-            label = { Text("Товар *") },
+            label = { Text(tr("Товар *", "Item *")) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()

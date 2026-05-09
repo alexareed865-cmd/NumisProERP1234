@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.numisproerp.data.dao.PurchaseWithProductName
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.data.dao.SupplierWithBalance
 import com.numisproerp.data.entities.Supplier
 import com.numisproerp.ui.theme.AccentBlue
@@ -106,6 +107,11 @@ fun SuppliersScreen(
         }
     }
 
+    val supplierUpdatedText = tr("Постачальника оновлено", "Supplier updated")
+    val supplierDeletedText = tr("Постачальника видалено", "Supplier deleted")
+    val supplierAddedText = tr("Постачальника додано", "Supplier added")
+    val contactCopiedText = tr("Контакт скопійовано", "Contact copied")
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -123,13 +129,13 @@ fun SuppliersScreen(
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     Icons.Default.ArrowBack,
-                    contentDescription = "Назад",
+                    contentDescription = tr("Назад", "Back"),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
 
             Text(
-                text = "Постачальники",
+                text = tr("Постачальники", "Suppliers"),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -153,12 +159,12 @@ fun SuppliersScreen(
                     value = uiState.searchQuery,
                     onValueChange = { viewModel.updateSearchQuery(it) },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Пошук за назвою, контактом або типом...") },
+                    placeholder = { Text(tr("Пошук за назвою, контактом або типом...", "Search by name, contact or type...")) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     trailingIcon = {
                         if (uiState.searchQuery.isNotEmpty()) {
                             IconButton(onClick = { viewModel.updateSearchQuery("") }) {
-                                Icon(Icons.Outlined.Clear, contentDescription = "Очистити")
+                                Icon(Icons.Outlined.Clear, contentDescription = tr("Очистити", "Clear"))
                             }
                         }
                     },
@@ -175,7 +181,7 @@ fun SuppliersScreen(
                 ) {
                     Icon(
                         Icons.Default.Add,
-                        contentDescription = "Додати постачальника",
+                        contentDescription = tr("Додати постачальника", "Add supplier"),
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
@@ -196,7 +202,7 @@ fun SuppliersScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Немає постачальників.\nНатисніть + щоб додати",
+                        text = tr("Немає постачальників.\nНатисніть + щоб додати", "No suppliers.\nTap + to add"),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
                 }
@@ -215,7 +221,7 @@ fun SuppliersScreen(
                             onCopyContact = {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 clipboard.setPrimaryClip(android.content.ClipData.newPlainText("contact", supplier.contact))
-                                Toast.makeText(context, "Контакт скопійовано", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, contactCopiedText, Toast.LENGTH_SHORT).show()
                             }
                         )
                     }
@@ -233,7 +239,7 @@ fun SuppliersScreen(
                 editMode = false
             },
             title = {
-                if (editMode) Text("Редагувати постачальника")
+                if (editMode) Text(tr("Редагувати постачальника", "Edit supplier"))
                 else Text(selectedSupplier!!.name)
             },
             text = {
@@ -247,28 +253,28 @@ fun SuppliersScreen(
                         OutlinedTextField(
                             value = editName,
                             onValueChange = { editName = it },
-                            label = { Text("Назва / Ім'я *") },
+                            label = { Text(tr("Назва / Ім'я *", "Name *")) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                         )
                         OutlinedTextField(
                             value = editContact,
                             onValueChange = { editContact = it },
-                            label = { Text("Контактні дані") },
+                            label = { Text(tr("Контактні дані", "Contact info")) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                         )
                         OutlinedTextField(
                             value = editType,
                             onValueChange = { editType = it },
-                            label = { Text("Тип") },
+                            label = { Text(tr("Тип", "Type")) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                         )
                         OutlinedTextField(
                             value = editComment,
                             onValueChange = { editComment = it },
-                            label = { Text("Коментар") },
+                            label = { Text(tr("Коментар", "Comment")) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                         )
@@ -284,27 +290,27 @@ fun SuppliersScreen(
                                 modifier = Modifier.padding(12.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text("Основна інформація", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(tr("Основна інформація", "Main info"), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 if (selectedSupplier!!.contact.isNotEmpty()) {
                                     Row {
-                                        Text("Контакти: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                        Text("${tr("Контакти", "Contacts")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                         Text(selectedSupplier!!.contact, fontSize = 13.sp, color = AccentBlue)
                                     }
                                 }
                                 if (selectedSupplier!!.type.isNotEmpty()) {
                                     Row {
-                                        Text("Тип: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                        Text("${tr("Тип", "Type")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                         Text(selectedSupplier!!.type, fontSize = 13.sp)
                                     }
                                 }
                                 if (selectedSupplier!!.comment.isNotEmpty()) {
                                     Row {
-                                        Text("Коментар: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                        Text("${tr("Коментар", "Comment")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                         Text(selectedSupplier!!.comment, fontSize = 13.sp)
                                     }
                                 }
                                 Row {
-                                    Text("Всього закуплено: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Всього закуплено", "Total purchased")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(
                                         text = String.format("%,.2f ₴", selectedSupplier!!.totalSpent),
                                         fontSize = 13.sp,
@@ -328,7 +334,7 @@ fun SuppliersScreen(
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Text(
-                                        text = "Історія закупівель",
+                                        text = tr("Історія закупівель", "Purchase history"),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp
                                     )
@@ -352,7 +358,7 @@ fun SuppliersScreen(
                                 shape = RoundedCornerShape(IOSDesign.CardCornerRadius)
                             ) {
                                 Text(
-                                    text = "Немає історії закупівель",
+                                    text = tr("Немає історії закупівель", "No purchase history"),
                                     modifier = Modifier.padding(12.dp),
                                     fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -381,14 +387,14 @@ fun SuppliersScreen(
                                     editMode = false
                                     showDetailDialog = false
                                     selectedSupplier = null
-                                    Toast.makeText(context, "Постачальника оновлено", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, supplierUpdatedText, Toast.LENGTH_SHORT).show()
                                 }
                             }
                         ) {
-                            Text("Зберегти", color = AccentGreen)
+                            Text(tr("Зберегти", "Save"), color = AccentGreen)
                         }
                         TextButton(onClick = { editMode = false }) {
-                            Text("Скасувати", color = AccentRed)
+                            Text(tr("Скасувати", "Cancel"), color = AccentRed)
                         }
                     }
                 } else {
@@ -406,7 +412,7 @@ fun SuppliersScreen(
                             }
                         ) {
                             Icon(Icons.Default.Edit, contentDescription = null)
-                            Text("Редагувати")
+                            Text(tr("Редагувати", "Edit"))
                         }
                         TextButton(
                             onClick = {
@@ -415,7 +421,7 @@ fun SuppliersScreen(
                             }
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = null)
-                            Text("Видалити", color = AccentRed)
+                            Text(tr("Видалити", "Delete"), color = AccentRed)
                         }
                     }
                 }
@@ -426,7 +432,7 @@ fun SuppliersScreen(
                         showDetailDialog = false
                         selectedSupplier = null
                     }) {
-                        Text("Закрити")
+                        Text(tr("Закрити", "Close"))
                     }
                 }
             }
@@ -439,10 +445,10 @@ fun SuppliersScreen(
                 showDeleteConfirmation = false
                 supplierToDelete = null
             },
-            title = { Text("Видалити постачальника?") },
+            title = { Text(tr("Видалити постачальника?", "Delete supplier?")) },
             text = {
                 Text(
-                    text = "Ви впевнені, що хочете видалити \"${supplierToDelete!!.name}\"?\nЦю дію не можна скасувати.",
+                    text = "${tr("Ви впевнені, що хочете видалити", "Are you sure you want to delete")} \"${supplierToDelete!!.name}\"?\n${tr("Цю дію не можна скасувати.", "This action cannot be undone.")}",
                     color = AccentRed
                 )
             },
@@ -455,11 +461,11 @@ fun SuppliersScreen(
                             showDetailDialog = false
                             selectedSupplier = null
                             supplierToDelete = null
-                            Toast.makeText(context, "Постачальника видалено", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, supplierDeletedText, Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) {
-                    Text("Видалити", color = AccentRed)
+                    Text(tr("Видалити", "Delete"), color = AccentRed)
                 }
             },
             dismissButton = {
@@ -467,7 +473,7 @@ fun SuppliersScreen(
                     showDeleteConfirmation = false
                     supplierToDelete = null
                 }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -477,7 +483,7 @@ fun SuppliersScreen(
     if (uiState.showAddDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.toggleAddDialog(false) },
-            title = { Text("Додати постачальника") },
+            title = { Text(tr("Додати постачальника", "Add supplier")) },
             text = {
                 Column(
                     modifier = Modifier
@@ -493,30 +499,30 @@ fun SuppliersScreen(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Назва / Ім'я *") },
+                        label = { Text(tr("Назва / Ім'я *", "Name *")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     )
                     OutlinedTextField(
                         value = contact,
                         onValueChange = { contact = it },
-                        label = { Text("Контактні дані") },
+                        label = { Text(tr("Контактні дані", "Contact info")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius),
-                        placeholder = { Text("Телефон, email, сайт...") }
+                        placeholder = { Text(tr("Телефон, email, сайт...", "Phone, email, website...")) }
                     )
                     OutlinedTextField(
                         value = type,
                         onValueChange = { type = it },
-                        label = { Text("Тип") },
+                        label = { Text(tr("Тип", "Type")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius),
-                        placeholder = { Text("Офіційний, Партнер, Аукціон...") }
+                        placeholder = { Text(tr("Офіційний, Партнер, Аукціон...", "Official, Partner, Auction...")) }
                     )
                     OutlinedTextField(
                         value = comment,
                         onValueChange = { comment = it },
-                        label = { Text("Коментар") },
+                        label = { Text(tr("Коментар", "Comment")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     )
@@ -529,14 +535,14 @@ fun SuppliersScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Зберегти")
+                        Text(tr("Зберегти", "Save"))
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { viewModel.toggleAddDialog(false) }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -676,7 +682,7 @@ fun PurchaseHistoryItem(purchase: PurchaseWithProductName) {
                 )
             }
             Text(
-                text = "${purchase.quantity} шт.",
+                text = "${purchase.quantity} ${tr("шт.", "pcs")}",
                 fontSize = 12.sp,
                 modifier = Modifier.width(60.dp)
             )

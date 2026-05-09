@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.numisproerp.data.entities.Product
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
 import com.numisproerp.ui.theme.AccentOrange
@@ -85,7 +86,7 @@ fun StockScreen(
         ) {
             Icon(
                 Icons.Default.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -96,7 +97,7 @@ fun StockScreen(
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
             Text(
-                text = "Склад",
+                text = tr("Склад", "Stock"),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -110,12 +111,12 @@ fun StockScreen(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.updateSearchQuery(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Пошук за назвою або серією...") },
+                placeholder = { Text(tr("Пошук за назвою або серією...", "Search by name or series...")) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (uiState.searchQuery.isNotEmpty()) {
                         IconButton(onClick = { viewModel.updateSearchQuery("") }) {
-                            Icon(Icons.Outlined.Clear, contentDescription = "Очистити")
+                            Icon(Icons.Outlined.Clear, contentDescription = tr("Очистити", "Clear"))
                         }
                     }
                 },
@@ -129,7 +130,7 @@ fun StockScreen(
                         FilterChip(
                             selected = uiState.selectedCategory.isBlank(),
                             onClick = { viewModel.updateSelectedCategory("") },
-                            label = { Text("Усі") }
+                            label = { Text(tr("Усі", "All")) }
                         )
                     }
                     items(uiState.categories) { category ->
@@ -166,7 +167,7 @@ fun StockScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Всього товарів на складі:",
+                            text = tr("Всього товарів на складі:", "Total items in stock:"),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -183,7 +184,7 @@ fun StockScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Загальна вартість залишків:",
+                            text = tr("Загальна вартість залишків:", "Total stock value:"),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -212,7 +213,7 @@ fun StockScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Немає товарів в наявності.\nДодайте товари через Закупівлю",
+                        text = tr("Немає товарів в наявності.\nДодайте товари через Закупівлю", "No items in stock.\nAdd via Purchase"),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                         textAlign = TextAlign.Center
                     )
@@ -266,7 +267,7 @@ fun ProductCard(
                 chipSize = IOSDesign.IconChipLarge,
                 iconSize = IOSDesign.IconSizeLarge,
                 cornerRadius = IOSDesign.CardCornerRadiusSmall,
-                contentDescription = "Фото"
+                contentDescription = tr("Фото", "Photo")
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -307,13 +308,13 @@ fun ProductCard(
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "Кількість: ${product.currentStock}",
+                    text = "${tr("Кількість", "Quantity")}: ${product.currentStock}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = if (product.currentStock > 0) AccentGreen else AccentRed
                 )
                 Text(
-                    text = "Сер.ціна: ${String.format("%,.2f", product.avgPurchasePrice)} ₴",
+                    text = "${tr("Сер.ціна", "Avg.price")}: ${String.format("%,.2f", product.avgPurchasePrice)} ₴",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )

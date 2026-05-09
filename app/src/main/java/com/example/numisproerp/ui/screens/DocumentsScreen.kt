@@ -1,9 +1,6 @@
 package com.numisproerp.ui.screens
 
-import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,9 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.outlined.ImportExport
 import androidx.compose.material.icons.outlined.PictureAsPdf
-import androidx.compose.material.icons.outlined.Publish
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,11 +33,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.numisproerp.data.database.AppDatabase
 import com.numisproerp.di.AppDatabaseEntryPoint
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.IOSDesign
-import dagger.hilt.android.EntryPointAccessors
-import com.numisproerp.utils.ExcelExporter
-import com.numisproerp.utils.ExcelImporter
 import com.numisproerp.utils.PdfReportGenerator
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,40 +50,14 @@ fun DocumentsScreen(navController: NavHostController) {
             .appDatabase()
     }
 
-    val importLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            scope.launch {
-                val importer = ExcelImporter(database)
-                val result = importer.importFromUri(context, uri)
-                val message = if (result.success) {
-                    "Імпорт завершено: Товарів:${result.productsCount}, Клієнтів:${result.clientsCount}, " +
-                            "Постачальників:${result.suppliersCount}, Закупівель:${result.purchasesCount}, " +
-                            "Продажів:${result.salesCount}, Витрат:${result.expensesCount}"
-                } else {
-                    result.message
-                }
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    val exportAction: () -> Unit = {
-        scope.launch {
-            val exporter = ExcelExporter(database)
-            val result = exporter.exportToExcelDefault(context)
-            Toast.makeText(context, if (result.success) "Експорт завершено: ${result.filePath}" else result.message, Toast.LENGTH_LONG).show()
-        }
-    }
-
+    val pdfCreatedLabel = tr("PDF створено", "PDF created")
     val pdfReportAction: () -> Unit = {
         scope.launch {
             val generator = PdfReportGenerator(database)
             val result = generator.generateOperationsReport(context)
             Toast.makeText(
                 context,
-                if (result.success) "PDF створено: ${result.filePath}" else result.message,
+                if (result.success) "$pdfCreatedLabel: ${result.filePath}" else result.message,
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -108,7 +76,7 @@ fun DocumentsScreen(navController: NavHostController) {
         ) {
             Icon(
                 Icons.Default.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -118,57 +86,62 @@ fun DocumentsScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(top = 72.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
+            Text(
+                text = tr("Документи", "Documents"),
+                fontSize = 22.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = tr(
+                    "Згенеруйте PDF-звіт зі всіма операціями: закупівлі, продажі, " +
+                        "списання, витрати та колекція.",
+                    "Generate a PDF report with all operations: purchases, sales, " +
+                        "writeoffs, expenses, and collection."
+                ),
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(IOSDesign.CardCornerRadius),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = IOSDesign.CardElevationRaised)
+                elevation = CardDefaults.cardElevation(defaultElevation = IOSDesign.CardElevation)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
+                        .padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "Документи та звіти",
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     Button(
                         onClick = pdfReportAction,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     ) {
                         Icon(Icons.Outlined.PictureAsPdf, contentDescription = null)
-                        Text("PDF звіт по операціях", modifier = Modifier.padding(start = 8.dp))
+                        Text(
+                            tr("PDF звіт по операціях", "PDF operations report"),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Button(
-                        onClick = { importLauncher.launch("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
-                    ) {
-                        Icon(Icons.Outlined.Publish, contentDescription = null)
-                        Text("Імпорт з Excel", modifier = Modifier.padding(start = 8.dp))
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Button(
-                        onClick = exportAction,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
-                    ) {
-                        Icon(Icons.Outlined.ImportExport, contentDescription = null)
-                        Text("Експорт в Excel", modifier = Modifier.padding(start = 8.dp))
-                    }
+                    Text(
+                        text = tr(
+                            "Файл збережеться у папку Downloads. Імпорт/Експорт Excel " +
+                                "перенесено в Налаштування.",
+                            "File is saved to Downloads folder. Excel Import/Export " +
+                                "has been moved to Settings."
+                        ),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                    )
                 }
             }
         }

@@ -56,6 +56,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
 import com.numisproerp.data.entities.Product
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentOrange
 import com.numisproerp.ui.theme.IOSDesign
@@ -84,7 +85,7 @@ fun ProductsScreen(
         ) {
             Icon(
                 Icons.Default.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -95,7 +96,7 @@ fun ProductsScreen(
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
             Text(
-                text = "Товари",
+                text = tr("Товари", "Products"),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -109,12 +110,12 @@ fun ProductsScreen(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.updateSearchQuery(it) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Пошук за назвою, серією або ID...") },
+                placeholder = { Text(tr("Пошук за назвою, серією або ID...", "Search by name, series or ID...")) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (uiState.searchQuery.isNotEmpty()) {
                         IconButton(onClick = { viewModel.updateSearchQuery("") }) {
-                            Icon(Icons.Outlined.Clear, contentDescription = "Очистити")
+                            Icon(Icons.Outlined.Clear, contentDescription = tr("Очистити", "Clear"))
                         }
                     }
                 },
@@ -128,7 +129,7 @@ fun ProductsScreen(
                         FilterChip(
                             selected = uiState.selectedCategory.isBlank(),
                             onClick = { viewModel.updateSelectedCategory("") },
-                            label = { Text("Усі") }
+                            label = { Text(tr("Усі", "All")) }
                         )
                     }
                     items(uiState.categories) { category ->
@@ -154,7 +155,7 @@ fun ProductsScreen(
                 visibleProducts.isEmpty() -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "Немає товарів у базі.\nІмпортуйте каталог через 'Каталог НБУ'",
+                            text = tr("Немає товарів у базі.\nІмпортуйте каталог через 'Каталог НБУ'", "No products in database.\nImport via 'NBU Catalog'"),
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
@@ -162,7 +163,7 @@ fun ProductsScreen(
                 }
                 else -> {
                     Text(
-                        text = "Знайдено: ${visibleProducts.size}",
+                        text = "${tr("Знайдено", "Found")}: ${visibleProducts.size}",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
@@ -265,12 +266,12 @@ private fun ProductThumbnail(photoPath: String) {
             chipSize = IOSDesign.IconChipLarge,
             iconSize = IOSDesign.IconSizeLarge,
             cornerRadius = IOSDesign.CardCornerRadiusSmall,
-            contentDescription = "Фото"
+            contentDescription = tr("Фото", "Photo")
         )
     } else {
         AsyncImage(
             model = ImageRequest.Builder(context).data(photoPath).build(),
-            contentDescription = "Фото товару",
+            contentDescription = tr("Фото товару", "Product photo"),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(IOSDesign.IconChipLarge)
@@ -287,7 +288,7 @@ fun ProductDetailDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Закрити") }
+            TextButton(onClick = onDismiss) { Text(tr("Закрити", "Close")) }
         },
         title = {
             Text(
@@ -306,18 +307,18 @@ fun ProductDetailDialog(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 DetailRow("ID каталогу", product.catalogId)
-                DetailRow("Серія", product.series)
-                DetailRow("Категорія", product.category)
-                DetailRow("Матеріал", product.material)
-                DetailRow("Номінал", product.nominal)
-                DetailRow("Якість", product.quality)
-                DetailRow("Діаметр", product.diameter)
-                DetailRow("Вага", product.weight)
-                DetailRow("Тираж (заявлено)", product.mintageAnnounced)
-                DetailRow("Тираж (фактично)", product.mintageActual)
-                DetailRow("Дата випуску", product.issueDate)
-                DetailRow("Художник", product.artist)
-                DetailRow("Скульптор", product.sculptor)
+                DetailRow(tr("Серія", "Series"), product.series)
+                DetailRow(tr("Категорія", "Category"), product.category)
+                DetailRow(tr("Матеріал", "Material"), product.material)
+                DetailRow(tr("Номінал", "Nominal"), product.nominal)
+                DetailRow(tr("Якість", "Quality"), product.quality)
+                DetailRow(tr("Діаметр", "Diameter"), product.diameter)
+                DetailRow(tr("Вага", "Weight"), product.weight)
+                DetailRow(tr("Тираж (заявлено)", "Mintage (announced)"), product.mintageAnnounced)
+                DetailRow(tr("Тираж (фактично)", "Mintage (actual)"), product.mintageActual)
+                DetailRow(tr("Дата випуску", "Issue date"), product.issueDate)
+                DetailRow(tr("Художник", "Artist"), product.artist)
+                DetailRow(tr("Скульптор", "Sculptor"), product.sculptor)
             }
         }
     )
@@ -345,7 +346,7 @@ private fun ProductDetailPhoto(photoPath: String) {
     } else {
         AsyncImage(
             model = ImageRequest.Builder(context).data(photoPath).build(),
-            contentDescription = "Фото",
+            contentDescription = tr("Фото", "Photo"),
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .fillMaxWidth()

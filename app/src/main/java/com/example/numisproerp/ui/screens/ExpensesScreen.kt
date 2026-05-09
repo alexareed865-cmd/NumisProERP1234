@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.compose.ui.text.style.TextAlign
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentOrange
 import com.numisproerp.ui.theme.AccentRed
@@ -84,7 +85,7 @@ fun ExpensesScreen(
         ) {
             Icon(
                 Icons.Default.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -96,7 +97,7 @@ fun ExpensesScreen(
                 .padding(16.dp),
             containerColor = AccentBlue
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Додати витрату")
+            Icon(Icons.Default.Add, contentDescription = tr("Додати витрату", "Add expense"))
         }
 
         Column(
@@ -105,7 +106,7 @@ fun ExpensesScreen(
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
             Text(
-                text = "Витрати",
+                text = tr("Витрати", "Expenses"),
                 fontSize = 24.sp,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -133,8 +134,8 @@ fun ExpensesScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (uiState.selectedCategory.isBlank()) "Загальні витрати"
-                        else "Витрати: ${uiState.selectedCategory}",
+                        text = if (uiState.selectedCategory.isBlank()) tr("Загальні витрати", "Total expenses")
+                        else "${tr("Витрати", "Expenses")}: ${uiState.selectedCategory}",
                         fontSize = 16.sp,
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
                     )
@@ -155,7 +156,7 @@ fun ExpensesScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Сортування",
+                    text = tr("Сортування", "Sort"),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -172,7 +173,7 @@ fun ExpensesScreen(
                         FilterChip(
                             selected = uiState.selectedCategory.isBlank(),
                             onClick = { viewModel.setCategory("") },
-                            label = { Text("Усі категорії") }
+                            label = { Text(tr("Усі категорії", "All categories")) }
                         )
                     }
                     items(uiState.categories) { category ->
@@ -203,8 +204,8 @@ fun ExpensesScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (uiState.expenses.isEmpty()) "Немає витрат.\nНатисніть + щоб додати"
-                        else "Немає витрат за обраним фільтром",
+                        text = if (uiState.expenses.isEmpty()) tr("Немає витрат.\nНатисніть + щоб додати", "No expenses.\nTap + to add")
+                        else tr("Немає витрат за обраним фільтром", "No expenses for selected filter"),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                         textAlign = TextAlign.Center
                     )
@@ -227,7 +228,7 @@ fun ExpensesScreen(
     if (uiState.showAddDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.toggleAddDialog(false) },
-            title = { Text("Додати витрату") },
+            title = { Text(tr("Додати витрату", "Add expense")) },
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -239,16 +240,16 @@ fun ExpensesScreen(
                     OutlinedTextField(
                         value = category,
                         onValueChange = { category = it },
-                        label = { Text("Категорія *") },
+                        label = { Text(tr("Категорія *", "Category *")) },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Оренда, Реклама, Доставка...") },
+                        placeholder = { Text(tr("Оренда, Реклама, Доставка...", "Rent, Ads, Delivery...")) },
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     )
 
                     OutlinedTextField(
                         value = amount,
                         onValueChange = { amount = it },
-                        label = { Text("Сума *") },
+                        label = { Text(tr("Сума *", "Amount *")) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("₴") },
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
@@ -257,9 +258,9 @@ fun ExpensesScreen(
                     OutlinedTextField(
                         value = comment,
                         onValueChange = { comment = it },
-                        label = { Text("Коментар") },
+                        label = { Text(tr("Коментар", "Comment")) },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Опис витрати") },
+                        placeholder = { Text(tr("Опис витрати", "Expense description")) },
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     )
 
@@ -271,14 +272,14 @@ fun ExpensesScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Зберегти")
+                        Text(tr("Зберегти", "Save"))
                     }
                 }
             },
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { viewModel.toggleAddDialog(false) }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -344,10 +345,10 @@ private fun ExpensesSortMenu(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val label = when (current) {
-        ExpensesSort.DATE_DESC -> "Дата ↓"
-        ExpensesSort.DATE_ASC -> "Дата ↑"
-        ExpensesSort.AMOUNT_DESC -> "Сума ↓"
-        ExpensesSort.AMOUNT_ASC -> "Сума ↑"
+        ExpensesSort.DATE_DESC -> "${tr("Дата", "Date")} ↓"
+        ExpensesSort.DATE_ASC -> "${tr("Дата", "Date")} ↑"
+        ExpensesSort.AMOUNT_DESC -> "${tr("Сума", "Amount")} ↓"
+        ExpensesSort.AMOUNT_ASC -> "${tr("Сума", "Amount")} ↑"
     }
     Box {
         TextButton(onClick = { expanded = true }) {
@@ -356,16 +357,16 @@ private fun ExpensesSortMenu(
             Text(label)
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text("Дата (нові спочатку)") }, onClick = {
+            DropdownMenuItem(text = { Text(tr("Дата (нові спочатку)", "Date (newest first)")) }, onClick = {
                 onSelected(ExpensesSort.DATE_DESC); expanded = false
             })
-            DropdownMenuItem(text = { Text("Дата (старі спочатку)") }, onClick = {
+            DropdownMenuItem(text = { Text(tr("Дата (старі спочатку)", "Date (oldest first)")) }, onClick = {
                 onSelected(ExpensesSort.DATE_ASC); expanded = false
             })
-            DropdownMenuItem(text = { Text("Сума (більші спочатку)") }, onClick = {
+            DropdownMenuItem(text = { Text(tr("Сума (більші спочатку)", "Amount (highest first)")) }, onClick = {
                 onSelected(ExpensesSort.AMOUNT_DESC); expanded = false
             })
-            DropdownMenuItem(text = { Text("Сума (менші спочатку)") }, onClick = {
+            DropdownMenuItem(text = { Text(tr("Сума (менші спочатку)", "Amount (lowest first)")) }, onClick = {
                 onSelected(ExpensesSort.AMOUNT_ASC); expanded = false
             })
         }

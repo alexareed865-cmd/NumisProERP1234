@@ -59,6 +59,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.numisproerp.data.entities.CatalogItem
+import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
 import com.numisproerp.ui.theme.AccentOrange
@@ -108,13 +109,13 @@ fun CatalogScreen(
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     Icons.Default.ArrowBack,
-                    contentDescription = "Назад",
+                    contentDescription = tr("Назад", "Back"),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
 
             Text(
-                text = "Каталог НБУ",
+                text = tr("Каталог НБУ", "NBU Catalog"),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -124,10 +125,10 @@ fun CatalogScreen(
             if (uiState.isDataLoaded) {
                 Row {
                     IconButton(onClick = { viewModel.toggleSortDialog(true) }) {
-                        Icon(Icons.Default.Sort, contentDescription = "Сортувати", tint = AccentBlue)
+                        Icon(Icons.Default.Sort, contentDescription = tr("Сортувати", "Sort"), tint = AccentBlue)
                     }
                     IconButton(onClick = { viewModel.toggleFilterDialog(true) }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Фільтрувати", tint = AccentBlue)
+                        Icon(Icons.Default.FilterList, contentDescription = tr("Фільтрувати", "Filter"), tint = AccentBlue)
                     }
                 }
             } else {
@@ -153,7 +154,7 @@ fun CatalogScreen(
                         shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                     ) {
                         Icon(Icons.Default.Upload, contentDescription = null)
-                        Text("Каталог НБУ (завантажити Excel)", modifier = Modifier.padding(start = 8.dp))
+                        Text(tr("Каталог НБУ (завантажити Excel)", "NBU Catalog (load Excel)"), modifier = Modifier.padding(start = 8.dp))
                     }
                 }
             }
@@ -186,10 +187,10 @@ fun CatalogScreen(
     if (uiState.showSortDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.toggleSortDialog(false) },
-            title = { Text("Сортувати") },
+            title = { Text(tr("Сортувати", "Sort")) },
             text = {
                 Column {
-                    listOf("name" to "За назвою", "date" to "За датою", "denomination" to "За номіналом").forEach { (value, label) ->
+                    listOf("name" to tr("За назвою", "By name"), "date" to tr("За датою", "By date"), "denomination" to tr("За номіналом", "By denomination")).forEach { (value, label) ->
                         TextButton(
                             onClick = {
                                 viewModel.setSortBy(value)
@@ -205,7 +206,7 @@ fun CatalogScreen(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { viewModel.toggleSortDialog(false) }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -215,7 +216,7 @@ fun CatalogScreen(
     if (uiState.showFilterDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.toggleFilterDialog(false) },
-            title = { Text("Фільтрувати за категорією") },
+            title = { Text(tr("Фільтрувати за категорією", "Filter by category")) },
             text = {
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
@@ -227,7 +228,7 @@ fun CatalogScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Всі категорії", fontWeight = FontWeight.Bold)
+                        Text(tr("Всі категорії", "All categories"), fontWeight = FontWeight.Bold)
                     }
                     uiState.categories.forEach { category ->
                         TextButton(
@@ -245,7 +246,7 @@ fun CatalogScreen(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { viewModel.toggleFilterDialog(false) }) {
-                    Text("Скасувати")
+                    Text(tr("Скасувати", "Cancel"))
                 }
             }
         )
@@ -273,7 +274,7 @@ fun CatalogScreen(
                                 .data(selectedItem!!.imageUrlFront)
                                 .crossfade(true)
                                 .build(),
-                            contentDescription = "Фото монети",
+                            contentDescription = tr("Фото монети", "Coin photo"),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(200.dp)
@@ -296,67 +297,67 @@ fun CatalogScreen(
                         ) {
                             if (selectedItem!!.series.isNotEmpty()) {
                                 Row {
-                                    Text("Серія: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Серія", "Series")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(selectedItem!!.series, fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.dateIntroduced.isNotEmpty()) {
                                 Row {
-                                    Text("Дата введення: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Дата введення", "Issue date")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(selectedItem!!.dateIntroduced, fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.material.isNotEmpty()) {
                                 Row {
-                                    Text("Матеріал: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Матеріал", "Material")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(selectedItem!!.material, fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.denomination.isNotEmpty()) {
                                 Row {
-                                    Text("Номінал: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Номінал", "Denomination")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text("${selectedItem!!.denomination} ₴", fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.diameter.isNotEmpty()) {
                                 Row {
-                                    Text("Діаметр: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Діаметр", "Diameter")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text("${selectedItem!!.diameter} мм", fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.weight.isNotEmpty()) {
                                 Row {
-                                    Text("Маса: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Маса", "Mass")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text("${selectedItem!!.weight} г", fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.mintage.isNotEmpty()) {
                                 Row {
-                                    Text("Тираж: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Тираж", "Mintage")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(selectedItem!!.mintage, fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.category.isNotEmpty()) {
                                 Row {
-                                    Text("Категорія: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Категорія", "Category")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(selectedItem!!.category, fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.quality.isNotEmpty()) {
                                 Row {
-                                    Text("Якість карбування: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Якість карбування", "Mint quality")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(selectedItem!!.quality, fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.artist.isNotEmpty()) {
                                 Row {
-                                    Text("Художник: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Художник", "Artist")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(selectedItem!!.artist, fontSize = 13.sp)
                                 }
                             }
                             if (selectedItem!!.sculptor.isNotEmpty()) {
                                 Row {
-                                    Text("Скульптор: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
+                                    Text("${tr("Скульптор", "Sculptor")}: ", fontWeight = FontWeight.Medium, fontSize = 13.sp)
                                     Text(selectedItem!!.sculptor, fontSize = 13.sp)
                                 }
                             }
@@ -373,7 +374,7 @@ fun CatalogScreen(
                             shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
                         ) {
                             Icon(Icons.Outlined.Info, contentDescription = null)
-                            Text("Переглянути на сайті НБУ", modifier = Modifier.padding(start = 8.dp))
+                            Text(tr("Переглянути на сайті НБУ", "View on NBU website"), modifier = Modifier.padding(start = 8.dp))
                         }
                     }
                 }
@@ -384,7 +385,7 @@ fun CatalogScreen(
                     showDetailDialog = false
                     selectedItem = null
                 }) {
-                    Text("Закрити")
+                    Text(tr("Закрити", "Close"))
                 }
             }
         )
@@ -415,7 +416,7 @@ fun CatalogItemCard(
                     .data(item.imageUrlFront)
                     .crossfade(true)
                     .build(),
-                contentDescription = "Фото",
+                contentDescription = tr("Фото", "Photo"),
                 modifier = Modifier
                     .size(56.dp)
                     .clip(RoundedCornerShape(IOSDesign.ChipCornerRadius))
