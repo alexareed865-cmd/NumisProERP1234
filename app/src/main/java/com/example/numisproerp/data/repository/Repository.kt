@@ -19,6 +19,7 @@ import com.numisproerp.data.entities.Purchase
 import com.numisproerp.data.entities.Sale
 import com.numisproerp.data.entities.Supplier
 import com.numisproerp.data.entities.Writeoff
+import com.numisproerp.data.entities.CollectionItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -253,6 +254,79 @@ class Repository @Inject constructor(
         withContext(Dispatchers.IO) {
             database.writeoffDao().getSumByDateRange(startDate, endDate) ?: 0.0
         }
+
+    // ==================== COLLECTION (МОЯ КОЛЕКЦІЯ) ====================
+
+    /**
+     * Додає товар до «Моєї колекції» (п. 12-13 ТЗ). Створюється:
+     *  - запис у `collection_items` (з фото, описом, оціночною вартістю);
+     *  - дублюючий `Product` з тим самим ID, щоб товар з'являвся у каталозі та
+     *    був доступний у вибірках Sale/Stock.
+     * Не створюється запис у `purchases`, тому грошовий баланс не зменшується,
+     * а середня закупочна ціна = 0 → весь дохід при продажі = чистий прибуток.
+     */
+    suspend fun addCollectionItem(item: CollectionItem) {
+        withContext(Dispatchers.IO) {
+            val productEquivalent = Product(
+                catalogId = item.collectionId,
+                name = item.name,
+                series = item.series,
+                material = item.material,
+                nominal = item.nominal,
+                category = item.category,
+                quality = item.quality,
+                photoPath = item.photoPath
+            )
+            database.productDao().insert(productEquivalent)
+            database.collectionItemDao().insert(item)
+        }
+    }
+
+    suspend fun updateCollectionItem(item: CollectionItem) {
+        withContext(Dispatchers.IO) {
+            database.collectionItemDao().update(item)
+            // Підтримуємо синхронну метадату на стороні products (назва, фото, серія, тощо).
+            val product = database.productDao().getProductById(item.collectionId)
+            if (product != null) {
+                database.productDao().insert(
+                    product.copy(
+                        name = item.name,
+                        series = item.series,
+                        material = item.material,
+                        nominal = item.nominal,
+                        category = item.category,
+                        quality = item.quality,
+                        photoPath = item.photoPath
+                    )
+                )
+            }
+        }
+    }
+
+    suspend fun deleteCollectionItem(item: CollectionItem) {
+        withContext(Dispatchers.IO) {
+            database.collectionItemDao().delete(item)
+            // Окремо не видаляємо Product, бо може бути пов'язана історія
+            // продажів (FOREIGN KEY-подібні залежності) — товар просто
+            // перестане числитися у складі (collection_items.quantity = 0).
+        }
+    }
+
+    fun getAllCollectionItems(): Flow<List<CollectionItem>> =
+        database.collectionItemDao().getAll()
+
+    suspend fun getCollectionItemById(id: String): CollectionItem? =
+        withContext(Dispatchers.IO) {
+            database.collectionItemDao().getById(id)
+        }
+
+    suspend fun getCollectionTotalEstimatedValue(): Double = withContext(Dispatchers.IO) {
+        database.collectionItemDao().getTotalEstimatedValue() ?: 0.0
+    }
+
+    suspend fun getCollectionCount(): Int = withContext(Dispatchers.IO) {
+        database.collectionItemDao().getCount()
+    }
 
     // ==================== RECENT TRANSACTIONS ====================
 

@@ -12,6 +12,7 @@ import com.numisproerp.data.dao.PurchaseDao
 import com.numisproerp.data.dao.SaleDao
 import com.numisproerp.data.dao.SupplierDao
 import com.numisproerp.data.dao.WriteoffDao
+import com.numisproerp.data.dao.CollectionItemDao
 import com.numisproerp.data.entities.CatalogItem
 import com.numisproerp.data.entities.Client
 import com.numisproerp.data.entities.OtherExpense
@@ -20,6 +21,7 @@ import com.numisproerp.data.entities.Purchase
 import com.numisproerp.data.entities.Sale
 import com.numisproerp.data.entities.Supplier
 import com.numisproerp.data.entities.Writeoff
+import com.numisproerp.data.entities.CollectionItem
 
 @Database(
     entities = [
@@ -30,9 +32,10 @@ import com.numisproerp.data.entities.Writeoff
         Sale::class,
         OtherExpense::class,
         CatalogItem::class,
-        Writeoff::class
+        Writeoff::class,
+        CollectionItem::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -44,6 +47,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun otherExpenseDao(): OtherExpenseDao
     abstract fun catalogDao(): CatalogDao
     abstract fun writeoffDao(): WriteoffDao
+    abstract fun collectionItemDao(): CollectionItemDao
 
     companion object {
         /**
@@ -77,6 +81,30 @@ abstract class AppDatabase : RoomDatabase() {
                             `reason` TEXT NOT NULL,
                             `comment` TEXT NOT NULL,
                             PRIMARY KEY(`writeoffId`)
+                        )
+                        """.trimIndent()
+                    )
+                }
+            },
+            // 12 → 13: додано таблицю collection_items (Моя колекція, п. 12-13 ТЗ).
+            object : Migration(12, 13) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS `collection_items` (
+                            `collectionId` TEXT NOT NULL,
+                            `name` TEXT NOT NULL,
+                            `series` TEXT NOT NULL,
+                            `category` TEXT NOT NULL,
+                            `material` TEXT NOT NULL,
+                            `nominal` TEXT NOT NULL,
+                            `quality` TEXT NOT NULL,
+                            `description` TEXT NOT NULL,
+                            `photoPath` TEXT NOT NULL,
+                            `estimatedValue` REAL NOT NULL,
+                            `quantity` INTEGER NOT NULL,
+                            `dateAdded` INTEGER NOT NULL,
+                            PRIMARY KEY(`collectionId`)
                         )
                         """.trimIndent()
                     )

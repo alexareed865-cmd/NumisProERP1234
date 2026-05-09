@@ -53,6 +53,9 @@ class ExcelExporter(
                 // Аркуш "Списання" — повний журнал списань (за п. 8 ТЗ)
                 createWriteoffsSheet(workbook, dateFormat)
 
+                // Аркуш "Моя колекція" — товари з власної колекції (за п. 12-13 ТЗ)
+                createCollectionSheet(workbook, dateFormat)
+
                 val fileName = "NumisProERP_Backup_${System.currentTimeMillis()}.xlsx"
                 val folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 if (!folder.exists()) {
@@ -244,6 +247,42 @@ class ExcelExporter(
             row.createCell(5).setCellValue(w.totalAmount)
             row.createCell(6).setCellValue(w.reason)
             row.createCell(7).setCellValue(w.comment)
+            rowNum++
+        }
+    }
+
+    private suspend fun createCollectionSheet(workbook: XSSFWorkbook, dateFormat: SimpleDateFormat) {
+        val sheet = workbook.createSheet("Моя колекція")
+        val header = sheet.createRow(0)
+        header.createCell(0).setCellValue("CollectionID")
+        header.createCell(1).setCellValue("Назва")
+        header.createCell(2).setCellValue("Серія")
+        header.createCell(3).setCellValue("Категорія")
+        header.createCell(4).setCellValue("Матеріал")
+        header.createCell(5).setCellValue("Номінал")
+        header.createCell(6).setCellValue("Якість")
+        header.createCell(7).setCellValue("Кількість")
+        header.createCell(8).setCellValue("Оціночна вартість")
+        header.createCell(9).setCellValue("Дата додавання")
+        header.createCell(10).setCellValue("Опис")
+        header.createCell(11).setCellValue("Фото (шлях)")
+
+        val items = database.collectionItemDao().getAllSync()
+        var rowNum = 1
+        for (item in items) {
+            val row = sheet.createRow(rowNum)
+            row.createCell(0).setCellValue(item.collectionId)
+            row.createCell(1).setCellValue(item.name)
+            row.createCell(2).setCellValue(item.series)
+            row.createCell(3).setCellValue(item.category)
+            row.createCell(4).setCellValue(item.material)
+            row.createCell(5).setCellValue(item.nominal)
+            row.createCell(6).setCellValue(item.quality)
+            row.createCell(7).setCellValue(item.quantity.toDouble())
+            row.createCell(8).setCellValue(item.estimatedValue)
+            row.createCell(9).setCellValue(dateFormat.format(Date(item.dateAdded)))
+            row.createCell(10).setCellValue(item.description)
+            row.createCell(11).setCellValue(item.photoPath)
             rowNum++
         }
     }

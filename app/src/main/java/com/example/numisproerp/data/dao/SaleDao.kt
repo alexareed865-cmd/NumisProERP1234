@@ -62,6 +62,8 @@ interface SaleDao {
             p.name,
             COALESCE((
                 SELECT SUM(quantity) FROM purchases WHERE catalogId = p.catalogId
+            ), 0) + COALESCE((
+                SELECT quantity FROM collection_items WHERE collectionId = p.catalogId
             ), 0) - COALESCE((
                 SELECT SUM(quantity) FROM sales WHERE catalogId = p.catalogId
             ), 0) - COALESCE((

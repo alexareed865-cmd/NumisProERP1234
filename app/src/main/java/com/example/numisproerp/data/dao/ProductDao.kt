@@ -60,8 +60,9 @@ interface ProductDao {
     suspend fun getProductById(catalogId: String): Product?
 
     /**
-     * Залишок = SUM(purchases) − SUM(sales) − SUM(writeoffs).
-     * Списання повинні зменшувати залишок та виключатися з доступного для продажу.
+     * Залишок = SUM(purchases) + collection_items.quantity − SUM(sales) − SUM(writeoffs).
+     * Списання зменшують залишок. Товари з «Моєї колекції» (п. 12-13 ТЗ)
+     * додаються до залишку і доступні для продажу нарівні з закупленими.
      */
     @Query("""
         SELECT 
@@ -87,6 +88,8 @@ interface ProductDao {
                 SELECT SUM(quantity) 
                 FROM purchases 
                 WHERE catalogId = p.catalogId
+            ), 0) + COALESCE((
+                SELECT quantity FROM collection_items WHERE collectionId = p.catalogId
             ), 0) - COALESCE((
                 SELECT SUM(quantity) 
                 FROM sales 
@@ -132,6 +135,8 @@ interface ProductDao {
                 SELECT SUM(quantity) 
                 FROM purchases 
                 WHERE catalogId = p.catalogId
+            ), 0) + COALESCE((
+                SELECT quantity FROM collection_items WHERE collectionId = p.catalogId
             ), 0) - COALESCE((
                 SELECT SUM(quantity) 
                 FROM sales 
@@ -161,6 +166,8 @@ interface ProductDao {
             p.material,
             COALESCE((
                 SELECT SUM(quantity) FROM purchases WHERE catalogId = p.catalogId
+            ), 0) + COALESCE((
+                SELECT quantity FROM collection_items WHERE collectionId = p.catalogId
             ), 0) - COALESCE((
                 SELECT SUM(quantity) FROM sales WHERE catalogId = p.catalogId
             ), 0) - COALESCE((
@@ -174,6 +181,8 @@ interface ProductDao {
         FROM products p
         WHERE COALESCE((
             SELECT SUM(quantity) FROM purchases WHERE catalogId = p.catalogId
+        ), 0) + COALESCE((
+            SELECT quantity FROM collection_items WHERE collectionId = p.catalogId
         ), 0) - COALESCE((
             SELECT SUM(quantity) FROM sales WHERE catalogId = p.catalogId
         ), 0) - COALESCE((

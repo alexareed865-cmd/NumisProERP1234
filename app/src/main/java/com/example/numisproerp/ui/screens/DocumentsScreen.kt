@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ImportExport
+import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.Publish
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -41,6 +42,7 @@ import com.numisproerp.ui.theme.IOSDesign
 import dagger.hilt.android.EntryPointAccessors
 import com.numisproerp.utils.ExcelExporter
 import com.numisproerp.utils.ExcelImporter
+import com.numisproerp.utils.PdfReportGenerator
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,6 +80,18 @@ fun DocumentsScreen(navController: NavHostController) {
             val exporter = ExcelExporter(database)
             val result = exporter.exportToExcelDefault(context)
             Toast.makeText(context, if (result.success) "Експорт завершено: ${result.filePath}" else result.message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    val pdfReportAction: () -> Unit = {
+        scope.launch {
+            val generator = PdfReportGenerator(database)
+            val result = generator.generateOperationsReport(context)
+            Toast.makeText(
+                context,
+                if (result.success) "PDF створено: ${result.filePath}" else result.message,
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -119,11 +133,22 @@ fun DocumentsScreen(navController: NavHostController) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Робота з базою даних",
+                        text = "Документи та звіти",
                         fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = pdfReportAction,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(IOSDesign.ButtonCornerRadius)
+                    ) {
+                        Icon(Icons.Outlined.PictureAsPdf, contentDescription = null)
+                        Text("PDF звіт по операціях", modifier = Modifier.padding(start = 8.dp))
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
                         onClick = { importLauncher.launch("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") },

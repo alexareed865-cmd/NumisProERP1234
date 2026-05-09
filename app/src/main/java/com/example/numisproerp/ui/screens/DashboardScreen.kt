@@ -91,7 +91,7 @@ fun DashboardScreen(
             onNavigateToPurchase = { navController.navigate(Screen.Purchase.route) },
             onNavigateToSale = { navController.navigate(Screen.Sale.route) },
             onNavigateToExpenses = { navController.navigate(Screen.Expenses.route) },
-            onNavigateToDocuments = { navController.navigate(Screen.Documents.route) },
+            onNavigateToDocuments = { navController.navigate(Screen.MyCollection.route) },
             onNavigateToSuppliers = { navController.navigate(Screen.Suppliers.route) },
             onNavigateToDetails = { type, title ->
                 navController.navigate("details/$type/$title")
@@ -407,7 +407,7 @@ fun QuickAccessRow2(
         QuickAccessButton(
             icon = Icons.Outlined.BarChart,
             tileRes = R.drawable.tile_collection,
-            label = "Документи",
+            label = "Моя колекція",
             onClick = onDocumentsClick
         )
     }
