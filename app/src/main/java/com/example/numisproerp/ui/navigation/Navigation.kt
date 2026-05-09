@@ -22,12 +22,12 @@ sealed class Screen(val route: String) {
     object Details : Screen("details/{type}/{title}") {
         fun passArguments(type: String, title: String): String = "details/$type/$title"
     }
-    object Settings : Screen("settings")  // ЗМІНЕНО: тепер не заглушка
+    object Settings : Screen("settings")
+    object Products : Screen("products")  // Усі товари в базі (drawer "Товари")
     // Заглушки
-    object ProductsPlaceholder : Screen("products")
     object WriteoffPlaceholder : Screen("writeoff")
     object HistoryPlaceholder : Screen("history")
-    object Catalog : Screen("catalog")  // ЗМІНЕНО: тепер не заглушка
+    object Catalog : Screen("catalog")
 }
 
 @Composable
@@ -87,10 +87,11 @@ fun NavGraph(
                 title = title
             )
         }
-        // Заглушки
-        composable(Screen.ProductsPlaceholder.route) {
-            PlaceholderScreen(title = "Товари (в розробці)", navController = navController)
+        // Усі товари в базі (drawer пункт "Товари")
+        composable(Screen.Products.route) {
+            ProductsScreen(navController = navController)
         }
+        // Заглушки
         composable(Screen.WriteoffPlaceholder.route) {
             PlaceholderScreen(title = "Списання (в розробці)", navController = navController)
         }

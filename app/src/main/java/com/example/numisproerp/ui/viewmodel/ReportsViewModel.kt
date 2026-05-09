@@ -138,10 +138,10 @@ class ReportsViewModel @Inject constructor(
     private suspend fun getMonthlyStats(): List<MonthlyStats> {
         val result = mutableListOf<MonthlyStats>()
         val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("MMM yyyy", Locale("uk"))
+        val dateFormat = SimpleDateFormat("LLLL yyyy", Locale("uk"))
 
-        for (i in 0 until 6) {
-            val monthOffset = 5 - i
+        // Поточний місяць зверху, далі вниз по спаду (за ТЗ п. 5).
+        for (monthOffset in 0 until 6) {
             calendar.timeInMillis = System.currentTimeMillis()
             calendar.add(Calendar.MONTH, -monthOffset)
             val startOfMonth = getStartOfMonthStatic(calendar.timeInMillis)
@@ -149,12 +149,12 @@ class ReportsViewModel @Inject constructor(
 
             val revenue = repository.getSalesSumByDateRange(startOfMonth, endOfMonth)
             val purchases = repository.getPurchasesSumByDateRange(startOfMonth, endOfMonth)
-            val otherExpenses = repository.getTotalOtherExpensesSum()
-            val expenses = purchases + otherExpenses
+            val expenses = purchases
 
             result.add(
                 MonthlyStats(
-                    month = dateFormat.format(Date(calendar.timeInMillis)),
+                    month = dateFormat.format(Date(calendar.timeInMillis))
+                        .replaceFirstChar { it.titlecase(Locale("uk")) },
                     revenue = revenue,
                     expenses = expenses,
                     profit = revenue - expenses
@@ -163,6 +163,10 @@ class ReportsViewModel @Inject constructor(
         }
 
         return result
+    }
+
+    suspend fun getStockBreakdown(): List<com.numisproerp.data.dao.ProductInStock> {
+        return repository.getProductsInStock().first()
     }
 
     fun formatDate(timestamp: Long): String {

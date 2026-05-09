@@ -69,6 +69,16 @@ class Repository @Inject constructor(
         return database.productDao().getProductsInStock()
     }
 
+    fun getAllProducts(): Flow<List<Product>> {
+        return database.productDao().getAllProducts()
+    }
+
+    suspend fun getProductById(catalogId: String): Product? {
+        return withContext(Dispatchers.IO) {
+            database.productDao().getProductById(catalogId)
+        }
+    }
+
     // ==================== CLIENTS ====================
 
     fun getClientsWithBalance(): Flow<List<ClientWithBalance>> {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 import com.numisproerp.data.database.AppDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
@@ -45,6 +46,9 @@ class ExcelExporter(
 
                 // Аркуш "Витрати"
                 createExpensesSheet(workbook, dateFormat)
+
+                // Аркуш "Склад" — снапшот залишків (за п. 3 ТЗ)
+                createStockSheet(workbook)
 
                 val fileName = "NumisProERP_Backup_${System.currentTimeMillis()}.xlsx"
                 val folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -209,6 +213,34 @@ class ExcelExporter(
             row.createCell(2).setCellValue(expense.category)
             row.createCell(3).setCellValue(expense.amount)
             row.createCell(4).setCellValue(expense.comment)
+            rowNum++
+        }
+    }
+
+    private suspend fun createStockSheet(workbook: XSSFWorkbook) {
+        val sheet = workbook.createSheet("Склад")
+        val header = sheet.createRow(0)
+        header.createCell(0).setCellValue("CatalogID")
+        header.createCell(1).setCellValue("Найменування")
+        header.createCell(2).setCellValue("Серія")
+        header.createCell(3).setCellValue("Категорія")
+        header.createCell(4).setCellValue("Матеріал")
+        header.createCell(5).setCellValue("Кількість")
+        header.createCell(6).setCellValue("Сер.закуп.ціна")
+        header.createCell(7).setCellValue("Загальна вартість")
+
+        val stock = database.productDao().getProductsInStock().first()
+        var rowNum = 1
+        for (item in stock) {
+            val row = sheet.createRow(rowNum)
+            row.createCell(0).setCellValue(item.catalogId)
+            row.createCell(1).setCellValue(item.name)
+            row.createCell(2).setCellValue(item.series)
+            row.createCell(3).setCellValue(item.category)
+            row.createCell(4).setCellValue(item.material)
+            row.createCell(5).setCellValue(item.currentStock.toDouble())
+            row.createCell(6).setCellValue(item.avgPurchasePrice)
+            row.createCell(7).setCellValue(item.currentStock * item.avgPurchasePrice)
             rowNum++
         }
     }

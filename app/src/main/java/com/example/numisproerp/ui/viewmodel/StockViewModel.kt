@@ -31,6 +31,7 @@ class StockViewModel @Inject constructor(
 
     init {
         loadProducts()
+        loadCategories()
     }
 
     fun updateSearchQuery(query: String) {
@@ -68,11 +69,15 @@ class StockViewModel @Inject constructor(
         }
     }
 
-    private fun loadCategories() {
+    fun loadCategories() {
         viewModelScope.launch {
             val categories = repository.getDistinctCategories()
             _uiState.value = _uiState.value.copy(categories = categories)
         }
+    }
+
+    suspend fun getProductDetails(catalogId: String): com.numisproerp.data.entities.Product? {
+        return repository.getProductById(catalogId)
     }
 
     fun addProduct(product: com.numisproerp.data.entities.Product) {

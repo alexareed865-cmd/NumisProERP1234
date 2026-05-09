@@ -15,12 +15,22 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+enum class ExpensesSort {
+    DATE_DESC,
+    DATE_ASC,
+    AMOUNT_DESC,
+    AMOUNT_ASC
+}
+
 data class ExpensesUiState(
     val expenses: List<OtherExpense> = emptyList(),
     val isLoading: Boolean = false,
     val showAddDialog: Boolean = false,
     val showSuccessMessage: Boolean = false,
-    val errorMessage: String = ""
+    val errorMessage: String = "",
+    val selectedCategory: String = "",
+    val sort: ExpensesSort = ExpensesSort.DATE_DESC,
+    val categories: List<String> = emptyList()
 )
 
 @HiltViewModel
@@ -37,11 +47,36 @@ class ExpensesViewModel @Inject constructor(
 
             val expensesFlow = repository.getAllExpenses()
             val expenses = expensesFlow.first()
+            val categories = expenses.map { it.category }
+                .filter { it.isNotBlank() }
+                .distinct()
+                .sorted()
 
             _uiState.value = _uiState.value.copy(
                 expenses = expenses,
+                categories = categories,
                 isLoading = false
             )
+        }
+    }
+
+    fun setCategory(category: String) {
+        _uiState.value = _uiState.value.copy(selectedCategory = category)
+    }
+
+    fun setSort(sort: ExpensesSort) {
+        _uiState.value = _uiState.value.copy(sort = sort)
+    }
+
+    fun visibleExpenses(): List<OtherExpense> {
+        val state = _uiState.value
+        val filtered = if (state.selectedCategory.isBlank()) state.expenses
+        else state.expenses.filter { it.category == state.selectedCategory }
+        return when (state.sort) {
+            ExpensesSort.DATE_DESC -> filtered.sortedByDescending { it.date }
+            ExpensesSort.DATE_ASC -> filtered.sortedBy { it.date }
+            ExpensesSort.AMOUNT_DESC -> filtered.sortedByDescending { it.amount }
+            ExpensesSort.AMOUNT_ASC -> filtered.sortedBy { it.amount }
         }
     }
 

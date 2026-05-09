@@ -88,7 +88,7 @@ fun NumisProERPNavigation() {
 
     val drawerItems = listOf(
         DrawerItem("Головне меню", Screen.Dashboard.route, false),
-        DrawerItem("Товари", Screen.Stock.route, false),
+        DrawerItem("Товари", Screen.Products.route, false),
         DrawerItem("Документи", Screen.Documents.route, false),
         DrawerItem("Витрати", Screen.Expenses.route, false),
         DrawerItem("Звіти", Screen.Reports.route, false),
@@ -179,8 +179,8 @@ fun BottomBar(navController: NavHostController) {
     val context = LocalContext.current
     val items = listOf(
         BottomNavItem("Головна", Icons.Default.Home, Screen.Dashboard.route, false),
-        BottomNavItem("Каталог", Icons.Default.Store, Screen.Catalog.route, false),  // ЗМІНЕНО: isPlaceholder = false
-        BottomNavItem("Товари", Icons.Default.Store, Screen.Stock.route, false),
+        BottomNavItem("Каталог", Icons.Default.Store, Screen.Catalog.route, false),
+        BottomNavItem("Склад", Icons.Default.Store, Screen.Stock.route, false),
         BottomNavItem("Налаштування", Icons.Default.Settings, Screen.Settings.route, false)
     )
 

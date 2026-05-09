@@ -13,17 +13,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,11 +50,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.compose.ui.text.style.TextAlign
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentOrange
 import com.numisproerp.ui.theme.AccentRed
 import com.numisproerp.ui.theme.IOSDesign
 import com.numisproerp.ui.theme.IOSIconChip
+import com.numisproerp.ui.viewmodel.ExpensesSort
 import com.numisproerp.ui.viewmodel.ExpensesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,9 +102,21 @@ fun ExpensesScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 72.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
-            val totalExpenses = uiState.expenses.sumOf { it.amount }
+            Text(
+                text = "Витрати",
+                fontSize = 24.sp,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 12.dp),
+                textAlign = TextAlign.Center
+            )
+
+            val visible = viewModel.visibleExpenses()
+            val totalExpenses = visible.sumOf { it.amount }
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -114,7 +133,8 @@ fun ExpensesScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Загальні витрати",
+                        text = if (uiState.selectedCategory.isBlank()) "Загальні витрати"
+                        else "Витрати: ${uiState.selectedCategory}",
                         fontSize = 16.sp,
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
                     )
@@ -127,6 +147,47 @@ fun ExpensesScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Сортування",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+                ExpensesSortMenu(
+                    current = uiState.sort,
+                    onSelected = { viewModel.setSort(it) }
+                )
+            }
+
+            if (uiState.categories.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    item {
+                        FilterChip(
+                            selected = uiState.selectedCategory.isBlank(),
+                            onClick = { viewModel.setCategory("") },
+                            label = { Text("Усі категорії") }
+                        )
+                    }
+                    items(uiState.categories) { category ->
+                        FilterChip(
+                            selected = uiState.selectedCategory == category,
+                            onClick = {
+                                if (uiState.selectedCategory == category) viewModel.setCategory("")
+                                else viewModel.setCategory(category)
+                            },
+                            label = { Text(category) }
+                        )
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             if (uiState.isLoading) {
@@ -136,21 +197,23 @@ fun ExpensesScreen(
                 ) {
                     CircularProgressIndicator()
                 }
-            } else if (uiState.expenses.isEmpty()) {
+            } else if (visible.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Немає витрат.\nНатисніть + щоб додати",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        text = if (uiState.expenses.isEmpty()) "Немає витрат.\nНатисніть + щоб додати"
+                        else "Немає витрат за обраним фільтром",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        textAlign = TextAlign.Center
                     )
                 }
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.expenses) { expense ->
+                    items(visible) { expense ->
                         ExpenseCard(
                             expense = expense,
                             formatDate = { viewModel.formatDate(it) }
@@ -270,6 +333,41 @@ fun ExpenseCard(
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 color = AccentRed
             )
+        }
+    }
+}
+
+@Composable
+private fun ExpensesSortMenu(
+    current: ExpensesSort,
+    onSelected: (ExpensesSort) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val label = when (current) {
+        ExpensesSort.DATE_DESC -> "Дата ↓"
+        ExpensesSort.DATE_ASC -> "Дата ↑"
+        ExpensesSort.AMOUNT_DESC -> "Сума ↓"
+        ExpensesSort.AMOUNT_ASC -> "Сума ↑"
+    }
+    Box {
+        TextButton(onClick = { expanded = true }) {
+            Icon(Icons.Default.Sort, contentDescription = null)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(label)
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(text = { Text("Дата (нові спочатку)") }, onClick = {
+                onSelected(ExpensesSort.DATE_DESC); expanded = false
+            })
+            DropdownMenuItem(text = { Text("Дата (старі спочатку)") }, onClick = {
+                onSelected(ExpensesSort.DATE_ASC); expanded = false
+            })
+            DropdownMenuItem(text = { Text("Сума (більші спочатку)") }, onClick = {
+                onSelected(ExpensesSort.AMOUNT_DESC); expanded = false
+            })
+            DropdownMenuItem(text = { Text("Сума (менші спочатку)") }, onClick = {
+                onSelected(ExpensesSort.AMOUNT_ASC); expanded = false
+            })
         }
     }
 }

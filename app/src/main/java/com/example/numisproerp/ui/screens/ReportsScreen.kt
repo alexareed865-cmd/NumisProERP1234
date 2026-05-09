@@ -1,6 +1,7 @@
 package com.numisproerp.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
@@ -23,6 +26,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -41,11 +45,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -58,6 +65,7 @@ import com.numisproerp.ui.theme.IOSDesign
 import com.numisproerp.ui.theme.IOSIconChip
 import com.numisproerp.ui.viewmodel.ReportsViewModel
 import com.numisproerp.ui.viewmodel.getStartOfMonthStatic
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +74,10 @@ fun ReportsScreen(
     viewModel: ReportsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
     var showDatePicker by remember { mutableStateOf(false) }
+    var openTab by remember { mutableStateOf<ReportsTab?>(null) }
+    var stockBreakdown by remember { mutableStateOf<List<com.numisproerp.data.dao.ProductInStock>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         viewModel.loadReports()
@@ -106,8 +117,19 @@ fun ReportsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 72.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
+            Text(
+                text = "Звіти",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 12.dp),
+                textAlign = TextAlign.Center
+            )
+
             if (uiState.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -120,14 +142,26 @@ fun ReportsScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        StatsGrid(uiState = uiState)
+                        StatsGrid(
+                            uiState = uiState,
+                            onTabClick = { tab ->
+                                if (tab == ReportsTab.STOCK) {
+                                    scope.launch {
+                                        stockBreakdown = viewModel.getStockBreakdown()
+                                        openTab = tab
+                                    }
+                                } else {
+                                    openTab = tab
+                                }
+                            }
+                        )
                     }
 
                     item {
                         Text(
-                            text = "Динаміка за місяцями",
+                            text = "Динаміка за місяцями (поточний зверху)",
                             fontSize = 18.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
 
@@ -179,10 +213,29 @@ fun ReportsScreen(
             }
         )
     }
+
+    openTab?.let { tab ->
+        ReportsDetailDialog(
+            tab = tab,
+            uiState = uiState,
+            stockBreakdown = stockBreakdown,
+            onDismiss = { openTab = null }
+        )
+    }
+}
+
+enum class ReportsTab {
+    REVENUE,
+    EXPENSES,
+    PROFIT,
+    STOCK
 }
 
 @Composable
-fun StatsGrid(uiState: com.numisproerp.ui.viewmodel.ReportsUiState) {
+fun StatsGrid(
+    uiState: com.numisproerp.ui.viewmodel.ReportsUiState,
+    onTabClick: (ReportsTab) -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -193,7 +246,8 @@ fun StatsGrid(uiState: com.numisproerp.ui.viewmodel.ReportsUiState) {
             value = String.format("%,.2f", uiState.totalRevenue),
             icon = Icons.Filled.ShoppingCart,
             iconColor = AccentGreen,
-            valueColor = AccentGreen
+            valueColor = AccentGreen,
+            onClick = { onTabClick(ReportsTab.REVENUE) }
         )
         StatCard(
             modifier = Modifier.weight(1f),
@@ -201,7 +255,8 @@ fun StatsGrid(uiState: com.numisproerp.ui.viewmodel.ReportsUiState) {
             value = String.format("%,.2f", uiState.totalExpenses),
             icon = Icons.Filled.Warning,
             iconColor = AccentRed,
-            valueColor = AccentRed
+            valueColor = AccentRed,
+            onClick = { onTabClick(ReportsTab.EXPENSES) }
         )
     }
 
@@ -217,7 +272,8 @@ fun StatsGrid(uiState: com.numisproerp.ui.viewmodel.ReportsUiState) {
             value = String.format("%,.2f", uiState.netProfit),
             icon = Icons.Filled.TrendingUp,
             iconColor = if (uiState.netProfit >= 0) AccentGreen else AccentRed,
-            valueColor = if (uiState.netProfit >= 0) AccentGreen else AccentRed
+            valueColor = if (uiState.netProfit >= 0) AccentGreen else AccentRed,
+            onClick = { onTabClick(ReportsTab.PROFIT) }
         )
         StatCard(
             modifier = Modifier.weight(1f),
@@ -225,7 +281,8 @@ fun StatsGrid(uiState: com.numisproerp.ui.viewmodel.ReportsUiState) {
             value = String.format("%,.2f", uiState.stockValue),
             icon = Icons.Filled.Store,
             iconColor = AccentBlue,
-            valueColor = AccentBlue
+            valueColor = AccentBlue,
+            onClick = { onTabClick(ReportsTab.STOCK) }
         )
     }
 }
@@ -237,10 +294,11 @@ fun StatCard(
     value: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     iconColor: Color,
-    valueColor: Color
+    valueColor: Color,
+    onClick: (() -> Unit)? = null
 ) {
     Card(
-        modifier = modifier,
+        modifier = if (onClick != null) modifier.clickable { onClick() } else modifier,
         shape = RoundedCornerShape(IOSDesign.CardCornerRadius),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = IOSDesign.CardElevation)
@@ -438,4 +496,129 @@ fun DateRangePickerDialog(
             DatePicker(state = endDatePickerState)
         }
     }
+}
+
+@Composable
+fun ReportsDetailDialog(
+    tab: ReportsTab,
+    uiState: com.numisproerp.ui.viewmodel.ReportsUiState,
+    stockBreakdown: List<com.numisproerp.data.dao.ProductInStock>,
+    onDismiss: () -> Unit
+) {
+    val title = when (tab) {
+        ReportsTab.REVENUE -> "Дохід"
+        ReportsTab.EXPENSES -> "Витрати"
+        ReportsTab.PROFIT -> "Чистий прибуток"
+        ReportsTab.STOCK -> "Залишки на складі"
+    }
+    val accent = when (tab) {
+        ReportsTab.REVENUE -> AccentGreen
+        ReportsTab.EXPENSES -> AccentRed
+        ReportsTab.PROFIT -> if (uiState.netProfit >= 0) AccentGreen else AccentRed
+        ReportsTab.STOCK -> AccentBlue
+    }
+    val totalText = when (tab) {
+        ReportsTab.REVENUE -> String.format("%,.2f", uiState.totalRevenue)
+        ReportsTab.EXPENSES -> String.format("%,.2f", uiState.totalExpenses)
+        ReportsTab.PROFIT -> String.format("%,.2f", uiState.netProfit)
+        ReportsTab.STOCK -> String.format("%,.2f", uiState.stockValue)
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Закрити") } },
+        title = {
+            Column {
+                Text(text = title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "$totalText ₴",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = accent
+                )
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                when (tab) {
+                    ReportsTab.STOCK -> {
+                        if (stockBreakdown.isEmpty()) {
+                            Text(
+                                text = "Немає товарів на складі",
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        } else {
+                            stockBreakdown.forEach { item ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = item.name,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = "${item.category} • ${item.material}",
+                                            fontSize = 11.sp,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    }
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(
+                                            text = "${item.currentStock} шт.",
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = AccentBlue
+                                        )
+                                        Text(
+                                            text = String.format(
+                                                "%,.2f ₴",
+                                                item.currentStock * item.avgPurchasePrice
+                                            ),
+                                            fontSize = 11.sp,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else -> {
+                        Text(
+                            text = "Розбивка по місяцях:",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                        uiState.monthlyData.forEach { m ->
+                            val (label, color) = when (tab) {
+                                ReportsTab.REVENUE -> String.format("%,.2f ₴", m.revenue) to AccentGreen
+                                ReportsTab.EXPENSES -> String.format("%,.2f ₴", m.expenses) to AccentRed
+                                ReportsTab.PROFIT -> String.format(
+                                    "%,.2f ₴", m.profit
+                                ) to if (m.profit >= 0) AccentGreen else AccentRed
+                                else -> "" to accent
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = m.month, fontSize = 13.sp)
+                                Text(
+                                    text = label,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = color
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    )
 }

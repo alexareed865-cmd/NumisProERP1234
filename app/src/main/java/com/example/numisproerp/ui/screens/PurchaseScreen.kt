@@ -560,34 +560,57 @@ fun SupplierDropdown(
     suppliers: List<SupplierForSelection>,
     onSupplierSelected: (String) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val selectedSupplier = suppliers.find { it.supplierId == selectedSupplierId }
+    var query by remember(selectedSupplierId) { mutableStateOf(selectedSupplier?.name ?: "") }
+    var expanded by remember { mutableStateOf(false) }
+
+    // Якщо обраного постачальника видалили зі списку — очищаємо поле.
+    LaunchedEffect(selectedSupplier) {
+        if (selectedSupplier != null && query != selectedSupplier.name) {
+            query = selectedSupplier.name
+        }
+    }
+
+    val filtered = remember(query, suppliers) {
+        if (query.isBlank()) suppliers
+        else suppliers.filter { it.name.contains(query, ignoreCase = true) }
+    }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it }
     ) {
         OutlinedTextField(
-            value = selectedSupplier?.name ?: "",
-            onValueChange = {},
-            readOnly = true,
+            value = query,
+            onValueChange = { newValue ->
+                query = newValue
+                expanded = true
+                if (newValue.isBlank() && selectedSupplierId.isNotEmpty()) {
+                    onSupplierSelected("")
+                }
+            },
             label = { Text("Постачальник *") },
+            placeholder = { Text("Введіть для пошуку...") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = modifier.menuAnchor(),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            singleLine = true
         )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            suppliers.forEach { supplier ->
-                DropdownMenuItem(
-                    text = { Text(supplier.name) },
-                    onClick = {
-                        onSupplierSelected(supplier.supplierId)
-                        expanded = false
-                    }
-                )
+        if (filtered.isNotEmpty()) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                filtered.forEach { supplier ->
+                    DropdownMenuItem(
+                        text = { Text(supplier.name) },
+                        onClick = {
+                            onSupplierSelected(supplier.supplierId)
+                            query = supplier.name
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
