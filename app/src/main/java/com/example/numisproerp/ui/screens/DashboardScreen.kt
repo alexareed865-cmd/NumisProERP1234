@@ -426,49 +426,53 @@ fun QuickAccessButton(
     onClick: () -> Unit
 ) {
     val theme = LocalAppTheme.current
-    val tileSize = 76.dp
+    val tileWidth = 82.dp
+    val tileHeight = 100.dp
     val tileCorner = 18.dp
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
         modifier = modifier
             .clickable { onClick() }
-            .padding(4.dp)
+            .padding(2.dp)
+            .size(width = tileWidth, height = tileHeight)
+            .clip(RoundedCornerShape(tileCorner))
+            .background(
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.55f)
+            ),
+        contentAlignment = Alignment.TopCenter
     ) {
-        Box(
-            modifier = Modifier
-                .size(tileSize)
-                .clip(RoundedCornerShape(tileCorner))
-                .background(
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.55f)
-                ),
-            contentAlignment = Alignment.Center
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = 10.dp, bottom = 6.dp, start = 4.dp, end = 4.dp)
         ) {
             if (theme == AppTheme.OLEG_SMILE) {
                 Image(
                     painter = painterResource(id = tileRes),
                     contentDescription = label,
                     modifier = Modifier
-                        .size(64.dp)
-                        .clip(RoundedCornerShape(14.dp))
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(12.dp))
                 )
             } else {
                 IOSIconChip(
                     icon = icon,
                     tint = MaterialTheme.colorScheme.primary,
-                    chipSize = 64.dp,
-                    iconSize = 32.dp,
-                    cornerRadius = 14.dp,
+                    chipSize = 52.dp,
+                    iconSize = 28.dp,
+                    cornerRadius = 12.dp,
                     backgroundAlpha = 0.12f,
                     contentDescription = label
                 )
             }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = label,
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                maxLines = 2,
+                lineHeight = 12.sp
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-        )
     }
 }
 

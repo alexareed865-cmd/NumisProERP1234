@@ -58,6 +58,12 @@ class Repository @Inject constructor(
         }
     }
 
+    suspend fun getDistinctMaterials(): List<String> {
+        return withContext(Dispatchers.IO) {
+            database.productDao().getDistinctMaterials()
+        }
+    }
+
     suspend fun insertProduct(product: Product) {
         return withContext(Dispatchers.IO) {
             database.productDao().insert(product)

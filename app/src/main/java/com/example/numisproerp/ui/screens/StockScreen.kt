@@ -24,9 +24,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -77,6 +81,7 @@ fun StockScreen(
     LaunchedEffect(Unit) {
         viewModel.loadProducts()
         viewModel.loadCategories()
+        viewModel.loadMaterials()
     }
 
     Box(
@@ -102,16 +107,29 @@ fun StockScreen(
                 .fillMaxSize()
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         ) {
-            Text(
-                text = tr("Склад", "Stock"),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp, bottom = 12.dp),
-                textAlign = TextAlign.Center
-            )
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.width(80.dp))
+                Text(
+                    text = tr("Склад", "Stock"),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+                IconButton(onClick = { viewModel.toggleSortDialog(true) }) {
+                    Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = tr("Сортувати", "Sort"), tint = AccentBlue)
+                }
+                IconButton(onClick = { /* show material filter via dialog */ viewModel.toggleMaterialFilter() }) {
+                    Icon(Icons.Default.FilterList, contentDescription = tr("Фільтр матеріал", "Filter material"), tint = AccentBlue)
+                }
+            }
 
             OutlinedTextField(
                 value = uiState.searchQuery,
@@ -246,6 +264,81 @@ fun StockScreen(
     selectedProduct?.let { product ->
         ProductDetailDialog(product = product, onDismiss = { selectedProduct = null })
     }
+
+    // Sort dialog
+    if (uiState.showSortDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.toggleSortDialog(false) },
+            title = { Text(tr("Сортувати", "Sort")) },
+            text = {
+                Column {
+                    listOf(
+                        "name" to tr("За назвою", "By name"),
+                        "quantity_desc" to tr("За кількістю (спадання)", "By quantity (desc)"),
+                        "quantity_asc" to tr("За кількістю (зростання)", "By quantity (asc)"),
+                        "price_desc" to tr("За ціною (спадання)", "By price (desc)"),
+                        "price_asc" to tr("За ціною (зростання)", "By price (asc)"),
+                        "category" to tr("За категорією", "By category"),
+                        "material" to tr("За матеріалом", "By material")
+                    ).forEach { (value, label) ->
+                        TextButton(
+                            onClick = {
+                                viewModel.setSortBy(value)
+                                viewModel.toggleSortDialog(false)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = if (uiState.sortBy == value) "• $label" else label,
+                                fontWeight = if (uiState.sortBy == value) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { viewModel.toggleSortDialog(false) }) {
+                    Text(tr("Скасувати", "Cancel"))
+                }
+            }
+        )
+    }
+
+    // Material filter dialog
+    if (uiState.showMaterialDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.toggleMaterialFilter() },
+            title = { Text(tr("Фільтр за матеріалом", "Filter by material")) },
+            text = {
+                Column {
+                    TextButton(
+                        onClick = { viewModel.updateFilterMaterial("") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(tr("Усі матеріали", "All materials"), fontWeight = FontWeight.Bold)
+                    }
+                    uiState.materials.forEach { material ->
+                        TextButton(
+                            onClick = { viewModel.updateFilterMaterial(material) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = if (uiState.filterMaterial == material) "• $material" else material,
+                                fontWeight = if (uiState.filterMaterial == material) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { viewModel.toggleMaterialFilter() }) {
+                    Text(tr("Скасувати", "Cancel"))
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -267,73 +360,60 @@ fun ProductCard(
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val context = LocalContext.current
-            if (product.photoPath.isNotBlank()) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context).data(product.photoPath).build(),
-                    contentDescription = tr("Фото товару", "Product photo"),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(IOSDesign.IconChipLarge)
-                        .clip(RoundedCornerShape(IOSDesign.CardCornerRadiusSmall))
-                )
-            } else {
-                IOSIconChip(
-                    icon = Icons.Outlined.PhotoCamera,
-                    tint = MaterialTheme.colorScheme.primary,
-                    chipSize = IOSDesign.IconChipLarge,
-                    iconSize = IOSDesign.IconSizeLarge,
-                    cornerRadius = IOSDesign.CardCornerRadiusSmall,
-                    contentDescription = tr("Фото", "Photo")
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = product.name,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    fontSize = 15.sp,
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
-                Text(
-                    text = product.series,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+                if (product.series.isNotBlank()) {
+                    Text(
+                        text = product.series,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
                 Row(
                     modifier = Modifier.padding(top = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = product.category,
-                        fontSize = 10.sp,
-                        color = AccentBlue,
-                        modifier = Modifier
-                            .background(AccentBlue.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                    Text(
-                        text = product.material,
-                        fontSize = 10.sp,
-                        color = AccentOrange,
-                        modifier = Modifier
-                            .background(AccentOrange.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
+                    if (product.category.isNotBlank()) {
+                        Text(
+                            text = product.category,
+                            fontSize = 10.sp,
+                            color = AccentBlue,
+                            modifier = Modifier
+                                .background(AccentBlue.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                    if (product.material.isNotBlank()) {
+                        Text(
+                            text = product.material,
+                            fontSize = 10.sp,
+                            color = AccentOrange,
+                            modifier = Modifier
+                                .background(AccentOrange.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
                 }
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "${tr("Кількість", "Quantity")}: ${product.currentStock}",
+                    text = "${product.currentStock} ${tr("шт.", "pcs")}",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
                     color = if (product.currentStock > 0) AccentGreen else AccentRed
                 )
                 Text(
-                    text = "${tr("Сер.ціна", "Avg.price")}: ${String.format("%,.2f", product.avgPurchasePrice)} ₴",
-                    fontSize = 12.sp,
+                    text = "${tr("Закупівля", "Purchase")}: ${String.format("%,.2f", product.avgPurchasePrice)} ₴",
+                    fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }

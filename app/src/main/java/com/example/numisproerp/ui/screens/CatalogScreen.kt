@@ -279,21 +279,65 @@ fun CatalogScreen(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Фото
-                    if (selectedItem!!.imageUrlFront.isNotEmpty()) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(selectedItem!!.imageUrlFront)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = tr("Фото монети", "Coin photo"),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
-                            contentScale = ContentScale.Fit
-                        )
+                    // Фото (аверс + реверс)
+                    if (selectedItem!!.imageUrlFront.isNotEmpty() || selectedItem!!.imageUrlBack.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (selectedItem!!.imageUrlFront.isNotEmpty()) {
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(selectedItem!!.imageUrlFront)
+                                            .crossfade(true)
+                                            .build(),
+                                        contentDescription = tr("Аверс", "Obverse"),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(150.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                    Text(
+                                        text = tr("Аверс", "Obverse"),
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
+                            }
+                            if (selectedItem!!.imageUrlBack.isNotEmpty()) {
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(selectedItem!!.imageUrlBack)
+                                            .crossfade(true)
+                                            .build(),
+                                        contentDescription = tr("Реверс", "Reverse"),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(150.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                                        contentScale = ContentScale.Fit
+                                    )
+                                    Text(
+                                        text = tr("Реверс", "Reverse"),
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     Card(

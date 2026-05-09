@@ -195,6 +195,9 @@ interface ProductDao {
     @Query("SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != ''")
     suspend fun getDistinctCategories(): List<String>
 
+    @Query("SELECT DISTINCT material FROM products WHERE material IS NOT NULL AND material != '' ORDER BY material")
+    suspend fun getDistinctMaterials(): List<String>
+
     @Query("DELETE FROM products")
     suspend fun deleteAll()
 }
