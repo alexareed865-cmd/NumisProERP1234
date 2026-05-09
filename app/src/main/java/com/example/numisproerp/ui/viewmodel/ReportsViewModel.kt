@@ -59,9 +59,10 @@ class ReportsViewModel @Inject constructor(
             val purchasesSum = repository.getPurchasesSumByDateRange(startDate, endDate)
             val salesSum = repository.getSalesSumByDateRange(startDate, endDate)
             val otherExpensesSum = repository.getTotalOtherExpensesSum()
+            val writeoffsSum = repository.getTotalWriteoffsSum()
 
             val totalRevenue = salesSum
-            val totalExpenses = purchasesSum + otherExpensesSum
+            val totalExpenses = purchasesSum + otherExpensesSum + writeoffsSum
             val netProfit = totalRevenue - totalExpenses
 
             val stockValue = calculateStockValue()
@@ -149,7 +150,8 @@ class ReportsViewModel @Inject constructor(
 
             val revenue = repository.getSalesSumByDateRange(startOfMonth, endOfMonth)
             val purchases = repository.getPurchasesSumByDateRange(startOfMonth, endOfMonth)
-            val expenses = purchases
+            val writeoffs = repository.getWriteoffsSumByDateRange(startOfMonth, endOfMonth)
+            val expenses = purchases + writeoffs
 
             result.add(
                 MonthlyStats(

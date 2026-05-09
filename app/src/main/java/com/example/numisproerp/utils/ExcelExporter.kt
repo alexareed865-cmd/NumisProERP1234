@@ -50,6 +50,9 @@ class ExcelExporter(
                 // Аркуш "Склад" — снапшот залишків (за п. 3 ТЗ)
                 createStockSheet(workbook)
 
+                // Аркуш "Списання" — повний журнал списань (за п. 8 ТЗ)
+                createWriteoffsSheet(workbook, dateFormat)
+
                 val fileName = "NumisProERP_Backup_${System.currentTimeMillis()}.xlsx"
                 val folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 if (!folder.exists()) {
@@ -213,6 +216,34 @@ class ExcelExporter(
             row.createCell(2).setCellValue(expense.category)
             row.createCell(3).setCellValue(expense.amount)
             row.createCell(4).setCellValue(expense.comment)
+            rowNum++
+        }
+    }
+
+    private suspend fun createWriteoffsSheet(workbook: XSSFWorkbook, dateFormat: SimpleDateFormat) {
+        val sheet = workbook.createSheet("Списання")
+        val header = sheet.createRow(0)
+        header.createCell(0).setCellValue("WriteoffID")
+        header.createCell(1).setCellValue("Дата")
+        header.createCell(2).setCellValue("CatalogID")
+        header.createCell(3).setCellValue("Кількість")
+        header.createCell(4).setCellValue("Сер.закуп.ціна")
+        header.createCell(5).setCellValue("Сума")
+        header.createCell(6).setCellValue("Причина")
+        header.createCell(7).setCellValue("Коментар")
+
+        val writeoffs = database.writeoffDao().getAll()
+        var rowNum = 1
+        for (w in writeoffs) {
+            val row = sheet.createRow(rowNum)
+            row.createCell(0).setCellValue(w.writeoffId)
+            row.createCell(1).setCellValue(dateFormat.format(Date(w.date)))
+            row.createCell(2).setCellValue(w.catalogId)
+            row.createCell(3).setCellValue(w.quantity.toDouble())
+            row.createCell(4).setCellValue(w.pricePerUnit)
+            row.createCell(5).setCellValue(w.totalAmount)
+            row.createCell(6).setCellValue(w.reason)
+            row.createCell(7).setCellValue(w.comment)
             rowNum++
         }
     }

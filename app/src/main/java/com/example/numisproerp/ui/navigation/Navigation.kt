@@ -24,9 +24,8 @@ sealed class Screen(val route: String) {
     }
     object Settings : Screen("settings")
     object Products : Screen("products")  // Усі товари в базі (drawer "Товари")
-    // Заглушки
-    object WriteoffPlaceholder : Screen("writeoff")
-    object HistoryPlaceholder : Screen("history")
+    object Writeoff : Screen("writeoff")  // Списання товарів зі складу
+    object History : Screen("history")    // Повна історія операцій
     object Catalog : Screen("catalog")
 }
 
@@ -91,12 +90,11 @@ fun NavGraph(
         composable(Screen.Products.route) {
             ProductsScreen(navController = navController)
         }
-        // Заглушки
-        composable(Screen.WriteoffPlaceholder.route) {
-            PlaceholderScreen(title = "Списання (в розробці)", navController = navController)
+        composable(Screen.Writeoff.route) {
+            WriteoffScreen(navController = navController)
         }
-        composable(Screen.HistoryPlaceholder.route) {
-            PlaceholderScreen(title = "Історія (в розробці)", navController = navController)
+        composable(Screen.History.route) {
+            HistoryScreen(navController = navController)
         }
         composable(Screen.Settings.route) {
             SettingsScreen(navController = navController)

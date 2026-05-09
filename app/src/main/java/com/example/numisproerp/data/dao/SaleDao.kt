@@ -64,6 +64,8 @@ interface SaleDao {
                 SELECT SUM(quantity) FROM purchases WHERE catalogId = p.catalogId
             ), 0) - COALESCE((
                 SELECT SUM(quantity) FROM sales WHERE catalogId = p.catalogId
+            ), 0) - COALESCE((
+                SELECT SUM(quantity) FROM writeoffs WHERE catalogId = p.catalogId
             ), 0) as currentStock,
             COALESCE((
                 SELECT AVG(pricePerUnit) FROM purchases WHERE catalogId = p.catalogId

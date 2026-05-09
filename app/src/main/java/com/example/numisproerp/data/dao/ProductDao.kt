@@ -59,6 +59,10 @@ interface ProductDao {
     @Query("SELECT * FROM products WHERE catalogId = :catalogId")
     suspend fun getProductById(catalogId: String): Product?
 
+    /**
+     * Залишок = SUM(purchases) − SUM(sales) − SUM(writeoffs).
+     * Списання повинні зменшувати залишок та виключатися з доступного для продажу.
+     */
     @Query("""
         SELECT 
             p.catalogId,
@@ -86,6 +90,10 @@ interface ProductDao {
             ), 0) - COALESCE((
                 SELECT SUM(quantity) 
                 FROM sales 
+                WHERE catalogId = p.catalogId
+            ), 0) - COALESCE((
+                SELECT SUM(quantity)
+                FROM writeoffs
                 WHERE catalogId = p.catalogId
             ), 0) as currentStock,
             COALESCE((
@@ -128,6 +136,10 @@ interface ProductDao {
                 SELECT SUM(quantity) 
                 FROM sales 
                 WHERE catalogId = p.catalogId
+            ), 0) - COALESCE((
+                SELECT SUM(quantity)
+                FROM writeoffs
+                WHERE catalogId = p.catalogId
             ), 0) as currentStock,
             COALESCE((
                 SELECT SUM(totalAmount) / SUM(quantity)
@@ -151,6 +163,8 @@ interface ProductDao {
                 SELECT SUM(quantity) FROM purchases WHERE catalogId = p.catalogId
             ), 0) - COALESCE((
                 SELECT SUM(quantity) FROM sales WHERE catalogId = p.catalogId
+            ), 0) - COALESCE((
+                SELECT SUM(quantity) FROM writeoffs WHERE catalogId = p.catalogId
             ), 0) as currentStock,
             COALESCE((
                 SELECT SUM(totalAmount) / SUM(quantity)
@@ -162,6 +176,8 @@ interface ProductDao {
             SELECT SUM(quantity) FROM purchases WHERE catalogId = p.catalogId
         ), 0) - COALESCE((
             SELECT SUM(quantity) FROM sales WHERE catalogId = p.catalogId
+        ), 0) - COALESCE((
+            SELECT SUM(quantity) FROM writeoffs WHERE catalogId = p.catalogId
         ), 0) > 0
         ORDER BY p.name
     """)

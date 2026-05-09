@@ -94,8 +94,8 @@ fun NumisProERPNavigation() {
         DrawerItem("Звіти", Screen.Reports.route, false),
         DrawerItem("Постачальники", Screen.Suppliers.route, false),
         DrawerItem("Клієнти", Screen.Clients.route, false),
-        DrawerItem("Списання", Screen.WriteoffPlaceholder.route, true),
-        DrawerItem("Історія", Screen.HistoryPlaceholder.route, true),
+        DrawerItem("Списання", Screen.Writeoff.route, false),
+        DrawerItem("Історія", Screen.History.route, false),
         DrawerItem("Налаштування", Screen.Settings.route, false)
     )
 

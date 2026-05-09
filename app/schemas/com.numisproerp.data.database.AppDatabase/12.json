@@ -1,0 +1,541 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 12,
+    "identityHash": "bc92548e2dc7a4847d9924c8ebac99f0",
+    "entities": [
+      {
+        "tableName": "products",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`catalogId` TEXT NOT NULL, `name` TEXT NOT NULL, `series` TEXT NOT NULL, `material` TEXT NOT NULL, `nominal` TEXT NOT NULL, `category` TEXT NOT NULL, `quality` TEXT NOT NULL, `diameter` TEXT NOT NULL, `weight` TEXT NOT NULL, `mintageAnnounced` TEXT NOT NULL, `mintageActual` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `artist` TEXT NOT NULL, `sculptor` TEXT NOT NULL, `photoPath` TEXT NOT NULL, PRIMARY KEY(`catalogId`))",
+        "fields": [
+          {
+            "fieldPath": "catalogId",
+            "columnName": "catalogId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "series",
+            "columnName": "series",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "material",
+            "columnName": "material",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nominal",
+            "columnName": "nominal",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quality",
+            "columnName": "quality",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "diameter",
+            "columnName": "diameter",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weight",
+            "columnName": "weight",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mintageAnnounced",
+            "columnName": "mintageAnnounced",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mintageActual",
+            "columnName": "mintageActual",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issueDate",
+            "columnName": "issueDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "artist",
+            "columnName": "artist",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sculptor",
+            "columnName": "sculptor",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "photoPath",
+            "columnName": "photoPath",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "catalogId"
+          ]
+        }
+      },
+      {
+        "tableName": "clients",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`clientId` TEXT NOT NULL, `name` TEXT NOT NULL, `phone` TEXT NOT NULL, `telegram` TEXT NOT NULL, `city` TEXT NOT NULL, `notes` TEXT NOT NULL, PRIMARY KEY(`clientId`))",
+        "fields": [
+          {
+            "fieldPath": "clientId",
+            "columnName": "clientId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phone",
+            "columnName": "phone",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telegram",
+            "columnName": "telegram",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "city",
+            "columnName": "city",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "clientId"
+          ]
+        }
+      },
+      {
+        "tableName": "suppliers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`supplierId` TEXT NOT NULL, `name` TEXT NOT NULL, `contact` TEXT NOT NULL, `type` TEXT NOT NULL, `comment` TEXT NOT NULL, PRIMARY KEY(`supplierId`))",
+        "fields": [
+          {
+            "fieldPath": "supplierId",
+            "columnName": "supplierId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contact",
+            "columnName": "contact",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comment",
+            "columnName": "comment",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "supplierId"
+          ]
+        }
+      },
+      {
+        "tableName": "purchases",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`purchaseId` TEXT NOT NULL, `date` INTEGER NOT NULL, `catalogId` TEXT NOT NULL, `supplierId` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `pricePerUnit` REAL NOT NULL, `additionalCosts` REAL NOT NULL, `totalAmount` REAL NOT NULL, PRIMARY KEY(`purchaseId`))",
+        "fields": [
+          {
+            "fieldPath": "purchaseId",
+            "columnName": "purchaseId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "catalogId",
+            "columnName": "catalogId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supplierId",
+            "columnName": "supplierId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pricePerUnit",
+            "columnName": "pricePerUnit",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "additionalCosts",
+            "columnName": "additionalCosts",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalAmount",
+            "columnName": "totalAmount",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "purchaseId"
+          ]
+        }
+      },
+      {
+        "tableName": "sales",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`saleId` TEXT NOT NULL, `date` INTEGER NOT NULL, `catalogId` TEXT NOT NULL, `clientId` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `pricePerUnit` REAL NOT NULL, `additionalCosts` REAL NOT NULL, `netProfit` REAL NOT NULL, `totalAmount` REAL NOT NULL, PRIMARY KEY(`saleId`))",
+        "fields": [
+          {
+            "fieldPath": "saleId",
+            "columnName": "saleId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "catalogId",
+            "columnName": "catalogId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clientId",
+            "columnName": "clientId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pricePerUnit",
+            "columnName": "pricePerUnit",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "additionalCosts",
+            "columnName": "additionalCosts",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "netProfit",
+            "columnName": "netProfit",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalAmount",
+            "columnName": "totalAmount",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "saleId"
+          ]
+        }
+      },
+      {
+        "tableName": "other_expenses",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`expenseId` TEXT NOT NULL, `date` INTEGER NOT NULL, `category` TEXT NOT NULL, `amount` REAL NOT NULL, `comment` TEXT NOT NULL, PRIMARY KEY(`expenseId`))",
+        "fields": [
+          {
+            "fieldPath": "expenseId",
+            "columnName": "expenseId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "amount",
+            "columnName": "amount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comment",
+            "columnName": "comment",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "expenseId"
+          ]
+        }
+      },
+      {
+        "tableName": "catalog_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `series` TEXT NOT NULL, `dateIntroduced` TEXT NOT NULL, `material` TEXT NOT NULL, `denomination` TEXT NOT NULL, `diameter` TEXT NOT NULL, `weight` TEXT NOT NULL, `mintage` TEXT NOT NULL, `category` TEXT NOT NULL, `quality` TEXT NOT NULL, `artist` TEXT NOT NULL, `sculptor` TEXT NOT NULL, `websiteUrl` TEXT NOT NULL, `imageUrlFront` TEXT NOT NULL, `imageUrlBack` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "series",
+            "columnName": "series",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateIntroduced",
+            "columnName": "dateIntroduced",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "material",
+            "columnName": "material",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "denomination",
+            "columnName": "denomination",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "diameter",
+            "columnName": "diameter",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weight",
+            "columnName": "weight",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mintage",
+            "columnName": "mintage",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quality",
+            "columnName": "quality",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "artist",
+            "columnName": "artist",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sculptor",
+            "columnName": "sculptor",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "websiteUrl",
+            "columnName": "websiteUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageUrlFront",
+            "columnName": "imageUrlFront",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageUrlBack",
+            "columnName": "imageUrlBack",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "writeoffs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`writeoffId` TEXT NOT NULL, `date` INTEGER NOT NULL, `catalogId` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `pricePerUnit` REAL NOT NULL, `totalAmount` REAL NOT NULL, `reason` TEXT NOT NULL, `comment` TEXT NOT NULL, PRIMARY KEY(`writeoffId`))",
+        "fields": [
+          {
+            "fieldPath": "writeoffId",
+            "columnName": "writeoffId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "catalogId",
+            "columnName": "catalogId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pricePerUnit",
+            "columnName": "pricePerUnit",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalAmount",
+            "columnName": "totalAmount",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reason",
+            "columnName": "reason",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comment",
+            "columnName": "comment",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "writeoffId"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bc92548e2dc7a4847d9924c8ebac99f0')"
+    ]
+  }
+}

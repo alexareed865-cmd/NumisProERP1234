@@ -10,6 +10,7 @@ import com.numisproerp.data.dao.PurchaseWithProductName
 import com.numisproerp.data.dao.SaleWithProductName
 import com.numisproerp.data.dao.SupplierForSelection
 import com.numisproerp.data.dao.SupplierWithBalance
+import com.numisproerp.data.dao.WriteoffWithProductName
 import com.numisproerp.data.database.AppDatabase
 import com.numisproerp.data.entities.Client
 import com.numisproerp.data.entities.OtherExpense
@@ -17,6 +18,7 @@ import com.numisproerp.data.entities.Product
 import com.numisproerp.data.entities.Purchase
 import com.numisproerp.data.entities.Sale
 import com.numisproerp.data.entities.Supplier
+import com.numisproerp.data.entities.Writeoff
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -217,7 +219,50 @@ class Repository @Inject constructor(
         }
     }
 
+    suspend fun getAllExpensesSync(): List<OtherExpense> {
+        return withContext(Dispatchers.IO) {
+            database.otherExpenseDao().getAllExpensesSync()
+        }
+    }
+
+    // ==================== WRITEOFFS ====================
+
+    suspend fun insertWriteoff(writeoff: Writeoff) {
+        return withContext(Dispatchers.IO) {
+            database.writeoffDao().insert(writeoff)
+        }
+    }
+
+    suspend fun getAllWriteoffs(): List<Writeoff> {
+        return withContext(Dispatchers.IO) {
+            database.writeoffDao().getAll()
+        }
+    }
+
+    suspend fun getAllWriteoffsWithProductName(): List<WriteoffWithProductName> {
+        return withContext(Dispatchers.IO) {
+            database.writeoffDao().getAllWithProductName()
+        }
+    }
+
+    suspend fun getTotalWriteoffsSum(): Double = withContext(Dispatchers.IO) {
+        database.writeoffDao().getTotalSum() ?: 0.0
+    }
+
+    suspend fun getWriteoffsSumByDateRange(startDate: Long, endDate: Long): Double =
+        withContext(Dispatchers.IO) {
+            database.writeoffDao().getSumByDateRange(startDate, endDate) ?: 0.0
+        }
+
     // ==================== RECENT TRANSACTIONS ====================
+
+    suspend fun getAllPurchasesWithDetails() = withContext(Dispatchers.IO) {
+        database.purchaseDao().getRecentWithDetails(Int.MAX_VALUE)
+    }
+
+    suspend fun getAllSalesWithDetails() = withContext(Dispatchers.IO) {
+        database.saleDao().getRecentWithDetails(Int.MAX_VALUE)
+    }
 
     suspend fun getRecentTransactions(limit: Int): List<TransactionSummary> = withContext(Dispatchers.IO) {
         val recentPurchases = database.purchaseDao().getRecentWithDetails(limit)
