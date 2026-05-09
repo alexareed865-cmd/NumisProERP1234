@@ -32,10 +32,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -48,6 +50,7 @@ import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.navigation.NavGraph
 import com.numisproerp.ui.navigation.Screen
 import com.numisproerp.ui.theme.NumisProERPTheme
+import com.numisproerp.ui.viewmodel.NotificationsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -133,7 +136,19 @@ fun NumisProERPNavigation() {
         Scaffold(
             topBar = {
                 if (showBars) {
-                    TopBar(onMenuClick = { scope.launch { drawerState.open() } })
+                    TopBar(
+                        onMenuClick = { scope.launch { drawerState.open() } },
+                        onHelpClick = {
+                            navController.navigate(Screen.Help.route) {
+                                launchSingleTop = true
+                            }
+                        },
+                        onNotificationsClick = {
+                            navController.navigate(Screen.Notifications.route) {
+                                launchSingleTop = true
+                            }
+                        }
+                    )
                 }
             },
             bottomBar = {
@@ -158,10 +173,14 @@ fun NumisProERPNavigation() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(onMenuClick: () -> Unit) {
-    val context = LocalContext.current
-    val helpInDev = tr("Довідка в розробці", "Help in development")
-    val notificationsInDev = tr("Сповіщення в розробці", "Notifications in development")
+fun TopBar(
+    onMenuClick: () -> Unit,
+    onHelpClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    notificationsViewModel: NotificationsViewModel = hiltViewModel()
+) {
+    val notifications by notificationsViewModel.notifications.collectAsState()
+    val unreadCount = notifications.size
     TopAppBar(
         title = { Text("NumisProERP") },
         navigationIcon = {
@@ -170,11 +189,15 @@ fun TopBar(onMenuClick: () -> Unit) {
             }
         },
         actions = {
-            IconButton(onClick = { Toast.makeText(context, helpInDev, Toast.LENGTH_SHORT).show() }) {
+            IconButton(onClick = onHelpClick) {
                 Icon(Icons.Outlined.Help, contentDescription = tr("Довідка", "Help"))
             }
-            IconButton(onClick = { Toast.makeText(context, notificationsInDev, Toast.LENGTH_SHORT).show() }) {
-                BadgedBox(badge = { Badge { Text(" ") } }) {
+            IconButton(onClick = onNotificationsClick) {
+                BadgedBox(badge = {
+                    if (unreadCount > 0) {
+                        Badge { Text(unreadCount.toString()) }
+                    }
+                }) {
                     Icon(Icons.Default.Notifications, contentDescription = tr("Сповіщення", "Notifications"))
                 }
             }
