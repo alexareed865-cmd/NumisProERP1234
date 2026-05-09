@@ -59,28 +59,49 @@ class ExcelImporter(
             // 1. Імпорт товарів (аркуш "Каталог Товарів")
             val productSheet = workbook.getSheet("Каталог Товарів")
             if (productSheet != null) {
+                // Визначаємо формат по заголовку:
+                //  - "PhotoPath" у колонці 8 → новий експорт NumisProERP
+                //  - інакше — стара 13-колонкова структура (legacy)
+                val headerRow = productSheet.getRow(0)
+                val isNewFormat = (headerRow?.getCell(8)?.toString() ?: "")
+                    .equals("PhotoPath", ignoreCase = true)
+
                 val products = mutableListOf<Product>()
                 for (rowIndex in 1 until productSheet.physicalNumberOfRows) {
                     val row = productSheet.getRow(rowIndex) ?: continue
                     val catalogId = row.getCell(0)?.toString() ?: continue
                     if (catalogId.isBlank()) continue
 
-                    val product = Product(
-                        catalogId = catalogId,
-                        name = row.getCell(1)?.toString() ?: "",
-                        series = row.getCell(2)?.toString() ?: "",
-                        issueDate = row.getCell(3)?.toString() ?: "",
-                        material = row.getCell(4)?.toString() ?: "",
-                        nominal = row.getCell(5)?.toString() ?: "",
-                        diameter = row.getCell(6)?.toString() ?: "",
-                        weight = row.getCell(7)?.toString() ?: "",
-                        mintageAnnounced = row.getCell(8)?.toString() ?: "",
-                        category = row.getCell(9)?.toString() ?: "",
-                        quality = row.getCell(10)?.toString() ?: "",
-                        artist = row.getCell(11)?.toString() ?: "",
-                        sculptor = row.getCell(12)?.toString() ?: "",
-                        photoPath = ""
-                    )
+                    val product = if (isNewFormat) {
+                        Product(
+                            catalogId = catalogId,
+                            name = row.getCell(1)?.toString() ?: "",
+                            series = row.getCell(2)?.toString() ?: "",
+                            material = row.getCell(3)?.toString() ?: "",
+                            nominal = row.getCell(4)?.toString() ?: "",
+                            category = row.getCell(5)?.toString() ?: "",
+                            issueDate = row.getCell(6)?.toString() ?: "",
+                            quality = row.getCell(7)?.toString() ?: "",
+                            photoPath = row.getCell(8)?.toString() ?: ""
+                        )
+                    } else {
+                        Product(
+                            catalogId = catalogId,
+                            name = row.getCell(1)?.toString() ?: "",
+                            series = row.getCell(2)?.toString() ?: "",
+                            issueDate = row.getCell(3)?.toString() ?: "",
+                            material = row.getCell(4)?.toString() ?: "",
+                            nominal = row.getCell(5)?.toString() ?: "",
+                            diameter = row.getCell(6)?.toString() ?: "",
+                            weight = row.getCell(7)?.toString() ?: "",
+                            mintageAnnounced = row.getCell(8)?.toString() ?: "",
+                            category = row.getCell(9)?.toString() ?: "",
+                            quality = row.getCell(10)?.toString() ?: "",
+                            artist = row.getCell(11)?.toString() ?: "",
+                            sculptor = row.getCell(12)?.toString() ?: "",
+                            photoPath = ""
+                        )
+                    }
                     products.add(product)
                 }
                 if (products.isNotEmpty()) {
@@ -245,6 +266,31 @@ class ExcelImporter(
             }
 
             workbook.close()
+
+            // Після імпорту products повторно синхронізуємо «дзеркальні» Product-и
+            // для всіх товарів з «Моєї колекції». Інакше вони зникали би зі складу
+            // (бо `productDao().deleteAll()` стирає їх, а Excel-імпорт не знає про
+            // collection_items). Записуємо з актуальним `photoPath` із колекції.
+            try {
+                val collectionItems = database.collectionItemDao().getAllSync()
+                if (collectionItems.isNotEmpty()) {
+                    val collectionProducts = collectionItems.map { ci ->
+                        Product(
+                            catalogId = ci.collectionId,
+                            name = ci.name,
+                            series = ci.series,
+                            material = ci.material,
+                            nominal = ci.nominal,
+                            category = ci.category,
+                            quality = ci.quality,
+                            photoPath = ci.photoPath
+                        )
+                    }
+                    database.productDao().insertAll(collectionProducts)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
 
             return ImportResult(
                 success = true,

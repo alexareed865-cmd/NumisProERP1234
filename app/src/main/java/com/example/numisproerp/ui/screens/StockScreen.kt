@@ -11,11 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -261,14 +267,26 @@ fun ProductCard(
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IOSIconChip(
-                icon = Icons.Outlined.PhotoCamera,
-                tint = MaterialTheme.colorScheme.primary,
-                chipSize = IOSDesign.IconChipLarge,
-                iconSize = IOSDesign.IconSizeLarge,
-                cornerRadius = IOSDesign.CardCornerRadiusSmall,
-                contentDescription = tr("Фото", "Photo")
-            )
+            val context = LocalContext.current
+            if (product.photoPath.isNotBlank()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context).data(product.photoPath).build(),
+                    contentDescription = tr("Фото товару", "Product photo"),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(IOSDesign.IconChipLarge)
+                        .clip(RoundedCornerShape(IOSDesign.CardCornerRadiusSmall))
+                )
+            } else {
+                IOSIconChip(
+                    icon = Icons.Outlined.PhotoCamera,
+                    tint = MaterialTheme.colorScheme.primary,
+                    chipSize = IOSDesign.IconChipLarge,
+                    iconSize = IOSDesign.IconSizeLarge,
+                    cornerRadius = IOSDesign.CardCornerRadiusSmall,
+                    contentDescription = tr("Фото", "Photo")
+                )
+            }
 
             Spacer(modifier = Modifier.width(12.dp))
 

@@ -87,6 +87,8 @@ class ExcelExporter(
         header.createCell(4).setCellValue("Номінал")
         header.createCell(5).setCellValue("Категорія")
         header.createCell(6).setCellValue("Дата випуску")
+        header.createCell(7).setCellValue("Якість")
+        header.createCell(8).setCellValue("PhotoPath")
 
         val products = database.productDao().getAllProductsSync()
         var rowNum = 1
@@ -99,6 +101,8 @@ class ExcelExporter(
             row.createCell(4).setCellValue(product.nominal)
             row.createCell(5).setCellValue(product.category)
             row.createCell(6).setCellValue(product.issueDate)
+            row.createCell(7).setCellValue(product.quality)
+            row.createCell(8).setCellValue(product.photoPath)
             rowNum++
         }
     }

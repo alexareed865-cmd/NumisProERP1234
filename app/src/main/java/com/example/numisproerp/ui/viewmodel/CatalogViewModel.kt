@@ -8,6 +8,7 @@ import com.numisproerp.data.entities.CatalogItem
 import com.numisproerp.data.repository.CatalogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,26 +33,50 @@ class CatalogViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CatalogUiState())
     val uiState: StateFlow<CatalogUiState> = _uiState.asStateFlow()
 
-    fun loadItems() {
-        viewModelScope.launch {
-            val itemsFlow = if (_uiState.value.selectedCategory.isNotEmpty()) {
-                repository.getItemsByCategory(_uiState.value.selectedCategory)
-            } else {
-                repository.getAllItems()
-            }
+    /**
+     * Поточна підписка на `itemsFlow`. Кожен виклик `loadItems()` скасовує
+     * попередню підписку, щоб уникнути нагромадження collect-ів при кожному
+     * заході на CatalogScreen чи зміні фільтра/сортування.
+     */
+    private var itemsJob: Job? = null
 
-            itemsFlow.collect { items ->
+    fun loadItems() {
+        itemsJob?.cancel()
+        itemsJob = viewModelScope.launch {
+            try {
+                val itemsFlow = if (_uiState.value.selectedCategory.isNotEmpty()) {
+                    repository.getItemsByCategory(_uiState.value.selectedCategory)
+                } else {
+                    repository.getAllItems()
+                }
+
+                itemsFlow.collect { items ->
+                    _uiState.value = _uiState.value.copy(
+                        items = applySorting(items),
+                        isLoading = false,
+                        isDataLoaded = items.isNotEmpty()
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
                 _uiState.value = _uiState.value.copy(
-                    items = applySorting(items),
                     isLoading = false,
-                    isDataLoaded = items.isNotEmpty()
+                    isDataLoaded = false
                 )
             }
+        }
 
-            val count = repository.getCount()
-            if (count > 0) {
-                val categories = repository.getDistinctCategories()
-                _uiState.value = _uiState.value.copy(categories = categories)
+        // Категорії підвантажуємо окремою корутиною (одноразово), щоб збір
+        // основного `itemsFlow` не блокував їх.
+        viewModelScope.launch {
+            try {
+                val count = repository.getCount()
+                if (count > 0) {
+                    val categories = repository.getDistinctCategories()
+                    _uiState.value = _uiState.value.copy(categories = categories)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
