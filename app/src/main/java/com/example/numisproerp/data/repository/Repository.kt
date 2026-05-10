@@ -346,6 +346,19 @@ class Repository @Inject constructor(
         }
     }
 
+    /**
+     * Додає існуючий товар до колекції БЕЗ перезапису Product-запису.
+     * Повертає false якщо товар вже в колекції.
+     */
+    suspend fun addExistingProductToCollection(item: CollectionItem): Boolean {
+        return withContext(Dispatchers.IO) {
+            val existing = database.collectionItemDao().getById(item.collectionId)
+            if (existing != null) return@withContext false
+            database.collectionItemDao().insert(item)
+            true
+        }
+    }
+
     fun getAllCollectionItems(): Flow<List<CollectionItem>> =
         database.collectionItemDao().getAll()
 

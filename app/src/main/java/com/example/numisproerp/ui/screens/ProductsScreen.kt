@@ -56,6 +56,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import com.numisproerp.data.entities.Product
 import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
@@ -184,18 +186,26 @@ fun ProductsScreen(
         }
     }
 
+    val coroutineScope = rememberCoroutineScope()
     selectedProduct?.let { product ->
         val context = LocalContext.current
         val imageUrls = viewModel.getProductImageUrls(product)
-        val addedToCollectionText = tr("Додано до колекції", "Added to collection")
+        val addedText = tr("Додано до колекції", "Added to collection")
+        val alreadyText = tr("Вже в колекції", "Already in collection")
         ProductDetailDialog(
             product = product,
             imageUrlFront = imageUrls.first,
             imageUrlBack = imageUrls.second,
             onDismiss = { selectedProduct = null },
             onAddToCollection = {
-                viewModel.addProductToCollection(product)
-                Toast.makeText(context, addedToCollectionText, Toast.LENGTH_SHORT).show()
+                coroutineScope.launch {
+                    val added = viewModel.addProductToCollection(product)
+                    Toast.makeText(
+                        context,
+                        if (added) addedText else alreadyText,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
                 selectedProduct = null
             }
         )
