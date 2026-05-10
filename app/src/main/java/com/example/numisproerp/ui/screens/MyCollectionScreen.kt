@@ -30,14 +30,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SortByAlpha
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.AttachMoney
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -75,12 +86,14 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.numisproerp.data.entities.CollectionItem
+import com.numisproerp.ui.components.SortFilterRow
 import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
 import com.numisproerp.ui.theme.IOSDesign
 import com.numisproerp.ui.viewmodel.MyCollectionViewModel
 import com.numisproerp.utils.ImageStorage
+import com.numisproerp.utils.photoModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -328,7 +341,7 @@ fun MyCollectionScreen(
                     if (detail.photoPath.isNotEmpty()) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                .data(File(detail.photoPath))
+                                .data(photoModel(detail.photoPath))
                                 .crossfade(true)
                                 .build(),
                             contentDescription = detail.name,
@@ -365,28 +378,28 @@ fun MyCollectionScreen(
             onDismissRequest = { viewModel.toggleSortDialog(false) },
             title = { Text(tr("Сортувати", "Sort")) },
             text = {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     listOf(
-                        "date_desc" to tr("За датою (новіші)", "By date (newest)"),
-                        "date_asc" to tr("За датою (старіші)", "By date (oldest)"),
-                        "name_asc" to tr("За назвою (А-Я)", "By name (A-Z)"),
-                        "name_desc" to tr("За назвою (Я-А)", "By name (Z-A)"),
-                        "value_desc" to tr("За вартістю (спадання)", "By value (desc)"),
-                        "value_asc" to tr("За вартістю (зростання)", "By value (asc)"),
-                        "qty_desc" to tr("За кількістю (спадання)", "By quantity (desc)"),
-                        "qty_asc" to tr("За кількістю (зростання)", "By quantity (asc)"),
-                        "category" to tr("За категорією", "By category"),
-                        "material" to tr("За матеріалом", "By material")
-                    ).forEach { (value, label) ->
-                        TextButton(
-                            onClick = { viewModel.setSortBy(value) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = if (uiState.sortBy == value) "• $label" else label,
-                                fontWeight = if (uiState.sortBy == value) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
+                        Triple("date_desc", tr("За датою (новіші)", "By date (newest)"), Icons.Default.CalendarMonth),
+                        Triple("date_asc", tr("За датою (старіші)", "By date (oldest)"), Icons.Default.CalendarMonth),
+                        Triple("name_asc", tr("За назвою (А-Я)", "By name (A-Z)"), Icons.Default.SortByAlpha),
+                        Triple("name_desc", tr("За назвою (Я-А)", "By name (Z-A)"), Icons.Default.SortByAlpha),
+                        Triple("value_desc", tr("За вартістю (спадання)", "By value (desc)"), Icons.AutoMirrored.Filled.TrendingDown),
+                        Triple("value_asc", tr("За вартістю (зростання)", "By value (asc)"), Icons.AutoMirrored.Filled.TrendingUp),
+                        Triple("qty_desc", tr("За кількістю (спадання)", "By quantity (desc)"), Icons.AutoMirrored.Filled.TrendingDown),
+                        Triple("qty_asc", tr("За кількістю (зростання)", "By quantity (asc)"), Icons.AutoMirrored.Filled.TrendingUp),
+                        Triple("category", tr("За категорією", "By category"), Icons.Default.Apps),
+                        Triple("material", tr("За матеріалом", "By material"), Icons.Default.Layers)
+                    ).forEach { (value, label, icon) ->
+                        SortFilterRow(
+                            icon = icon,
+                            label = label,
+                            selected = uiState.sortBy == value,
+                            onClick = { viewModel.setSortBy(value) }
+                        )
                     }
                 }
             },
@@ -474,7 +487,7 @@ private fun CollectionItemCard(
                 if (item.photoPath.isNotEmpty()) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(File(item.photoPath))
+                            .data(photoModel(item.photoPath))
                             .crossfade(true)
                             .build(),
                         contentDescription = item.name,
@@ -596,7 +609,7 @@ private fun AddOrEditCollectionDialog(
                         if (photoPath.isNotEmpty()) {
                             AsyncImage(
                                 model = ImageRequest.Builder(context)
-                                    .data(File(photoPath))
+                                    .data(photoModel(photoPath))
                                     .crossfade(true)
                                     .build(),
                                 contentDescription = tr("Фото", "Photo"),
@@ -749,30 +762,35 @@ private fun CollectionFilterDialog(
                     // Tree root: choose filter dimension
                     FilterDimensionRow(
                         label = tr("Категорія", "Category"),
+                        icon = Icons.Default.Apps,
                         selected = uiState.filterCategory,
                         empty = uiState.categories.isEmpty(),
                         onClick = { activeDimension = "category" }
                     )
                     FilterDimensionRow(
                         label = tr("Матеріал", "Material"),
+                        icon = Icons.Default.Layers,
                         selected = uiState.filterMaterial,
                         empty = uiState.materials.isEmpty(),
                         onClick = { activeDimension = "material" }
                     )
                     FilterDimensionRow(
                         label = tr("Якість", "Quality"),
+                        icon = Icons.Default.Star,
                         selected = uiState.filterQuality,
                         empty = uiState.qualities.isEmpty(),
                         onClick = { activeDimension = "quality" }
                     )
                     FilterDimensionRow(
                         label = tr("Серія", "Series"),
+                        icon = Icons.Default.Category,
                         selected = uiState.filterSeries,
                         empty = uiState.seriesList.isEmpty(),
                         onClick = { activeDimension = "series" }
                     )
                     FilterDimensionRow(
                         label = tr("Номінал", "Nominal"),
+                        icon = Icons.Default.Numbers,
                         selected = uiState.filterNominal,
                         empty = uiState.nominals.isEmpty(),
                         onClick = { activeDimension = "nominal" }
@@ -786,32 +804,34 @@ private fun CollectionFilterDialog(
                         "nominal" -> Triple(uiState.nominals, uiState.filterNominal, onNominalSelected)
                         else -> Triple(emptyList(), "", {} as (String) -> Unit)
                     }
+                    val dimIcon = when (activeDimension) {
+                        "category" -> Icons.Default.Apps
+                        "material" -> Icons.Default.Layers
+                        "quality" -> Icons.Default.Star
+                        "series" -> Icons.Default.Category
+                        "nominal" -> Icons.Default.Numbers
+                        else -> Icons.Default.Tune
+                    }
 
-                    TextButton(
+                    SortFilterRow(
+                        icon = Icons.Default.FilterList,
+                        label = tr("Усі", "All"),
+                        selected = currentValue.isEmpty(),
                         onClick = {
                             apply("")
                             activeDimension = null
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            tr("Усі", "All"),
-                            fontWeight = if (currentValue.isEmpty()) FontWeight.Bold else FontWeight.Normal
-                        )
-                    }
+                        }
+                    )
                     options.forEach { value ->
-                        TextButton(
+                        SortFilterRow(
+                            icon = dimIcon,
+                            label = value,
+                            selected = currentValue == value,
                             onClick = {
                                 apply(value)
                                 activeDimension = null
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = if (currentValue == value) "• $value" else value,
-                                fontWeight = if (currentValue == value) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
+                            }
+                        )
                     }
                     if (options.isEmpty()) {
                         Text(
@@ -846,30 +866,28 @@ private fun CollectionFilterDialog(
 @Composable
 private fun FilterDimensionRow(
     label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     selected: String,
     empty: Boolean,
     onClick: () -> Unit
 ) {
-    TextButton(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        enabled = !empty
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    SortFilterRow(
+        icon = icon,
+        label = label,
+        selected = selected.isNotEmpty(),
+        onClick = if (empty) ({}) else onClick,
+        showRadio = false,
+        trailing = {
             Text(
-                text = label,
-                fontWeight = if (selected.isNotEmpty()) FontWeight.Bold else FontWeight.Normal
-            )
-            Text(
-                text = if (selected.isNotEmpty()) selected else if (empty) tr("немає", "none") else tr("›", "›"),
+                text = when {
+                    selected.isNotEmpty() -> selected
+                    empty -> tr("немає", "none")
+                    else -> tr("›", "›")
+                },
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
-    }
+    )
 }
 

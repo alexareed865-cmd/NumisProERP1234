@@ -1,9 +1,14 @@
 package com.numisproerp
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -52,6 +57,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
@@ -65,6 +72,7 @@ import com.numisproerp.ui.i18n.LocalAppLanguage
 import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.navigation.NavGraph
 import com.numisproerp.ui.navigation.Screen
+import com.numisproerp.ui.splash.SplashVideoScreen
 import com.numisproerp.ui.theme.NumisProERPTheme
 import com.numisproerp.ui.viewmodel.NotificationsViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -77,20 +85,38 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var settingsManager: SettingsManager
 
+    private val requestNotificationsPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* no-op */ }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Android 13+: запитуємо дозвіл на сповіщення для нагадувань-будильників.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                requestNotificationsPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
         setContent {
             val theme by settingsManager.themeState
             val language by settingsManager.languageState
+            var splashFinished by rememberSaveable { mutableStateOf(false) }
             NumisProERPTheme(appTheme = theme) {
                 CompositionLocalProvider(LocalAppLanguage provides language) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        NumisProERPNavigation()
+                        if (!splashFinished) {
+                            SplashVideoScreen(onComplete = { splashFinished = true })
+                        } else {
+                            NumisProERPNavigation()
+                        }
                     }
                 }
             }

@@ -98,11 +98,45 @@ class SettingsManager @Inject constructor(
             prefs.edit().putInt(KEY_LOW_STOCK_THRESHOLD, clamped).apply()
         }
 
+    /**
+     * URI звуку нагадування для замітки. Може бути:
+     * - порожнім рядком (тоді використовується системний DEFAULT_NOTIFICATION_URI),
+     * - системним RingtoneManager URI (`content://media/...`),
+     * - локальним файлом з cacheDir/custom_sounds/ (`file://...`).
+     */
+    private val _noteAlarmSoundUri: MutableState<String> =
+        mutableStateOf(prefs.getString(KEY_NOTE_ALARM_SOUND_URI, "") ?: "")
+
+    val noteAlarmSoundUriState: MutableState<String>
+        get() = _noteAlarmSoundUri
+
+    var noteAlarmSoundUri: String
+        get() = _noteAlarmSoundUri.value
+        set(value) {
+            _noteAlarmSoundUri.value = value
+            prefs.edit().putString(KEY_NOTE_ALARM_SOUND_URI, value).apply()
+        }
+
+    private val _noteAlarmSoundLabel: MutableState<String> =
+        mutableStateOf(prefs.getString(KEY_NOTE_ALARM_SOUND_LABEL, "") ?: "")
+
+    val noteAlarmSoundLabelState: MutableState<String>
+        get() = _noteAlarmSoundLabel
+
+    var noteAlarmSoundLabel: String
+        get() = _noteAlarmSoundLabel.value
+        set(value) {
+            _noteAlarmSoundLabel.value = value
+            prefs.edit().putString(KEY_NOTE_ALARM_SOUND_LABEL, value).apply()
+        }
+
     companion object {
         private const val PREFS_NAME = "numispro_settings"
         private const val KEY_THEME = "app_theme"
         private const val KEY_LANGUAGE = "app_language"
         private const val KEY_LOW_STOCK_THRESHOLD = "low_stock_threshold"
+        private const val KEY_NOTE_ALARM_SOUND_URI = "note_alarm_sound_uri"
+        private const val KEY_NOTE_ALARM_SOUND_LABEL = "note_alarm_sound_label"
         const val DEFAULT_LOW_STOCK_THRESHOLD = 3
         const val MAX_LOW_STOCK_THRESHOLD = 20
     }

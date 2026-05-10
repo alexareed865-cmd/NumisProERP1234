@@ -29,6 +29,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE reminderDate IS NOT NULL AND reminderDate <= :timestamp AND isCompleted = 0")
     suspend fun getDueReminders(timestamp: Long): List<Note>
 
+    @Query("SELECT * FROM notes WHERE reminderDate IS NOT NULL AND reminderDate > :timestamp AND isCompleted = 0")
+    suspend fun getFutureReminders(timestamp: Long): List<Note>
+
     @Query("SELECT COUNT(*) FROM notes WHERE isCompleted = 0")
     suspend fun getActiveCount(): Int
 

@@ -59,6 +59,7 @@ import com.numisproerp.di.AppDatabaseEntryPoint
 import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.IOSDesign
 import com.numisproerp.utils.PdfReportGenerator
+import com.numisproerp.utils.ReceiptShareUtil
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -121,6 +122,9 @@ fun DocumentsScreen(navController: NavHostController) {
                 context, startDate, endDate, selectedClient?.clientId
             )
             toast(if (result.success) "$pdfCreatedLabel: ${result.filePath}" else result.message)
+            if (result.success && result.filePath.isNotEmpty()) {
+                ReceiptShareUtil.openPdf(context, result.filePath)
+            }
         }
     }
     val onPurchasesReport: () -> Unit = {
@@ -130,6 +134,9 @@ fun DocumentsScreen(navController: NavHostController) {
                 context, startDate, endDate, selectedSupplier?.supplierId
             )
             toast(if (result.success) "$pdfCreatedLabel: ${result.filePath}" else result.message)
+            if (result.success && result.filePath.isNotEmpty()) {
+                ReceiptShareUtil.openPdf(context, result.filePath)
+            }
         }
     }
     val onOperationsReport: () -> Unit = {
@@ -137,6 +144,9 @@ fun DocumentsScreen(navController: NavHostController) {
             val generator = PdfReportGenerator(database)
             val result = generator.generateOperationsReport(context)
             toast(if (result.success) "$pdfCreatedLabel: ${result.filePath}" else result.message)
+            if (result.success && result.filePath.isNotEmpty()) {
+                ReceiptShareUtil.openPdf(context, result.filePath)
+            }
         }
     }
 

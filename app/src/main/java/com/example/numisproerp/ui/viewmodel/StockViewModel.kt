@@ -213,7 +213,8 @@ class StockViewModel @Inject constructor(
 
     fun getProductImageUrls(product: com.numisproerp.data.entities.Product): Pair<String, String> {
         if (product.photoPath.isNotBlank()) return Pair(product.photoPath, "")
-        return _uiState.value.catalogImagePairMap[product.name] ?: Pair("", "")
+        val map = _uiState.value.catalogImagePairMap
+        return map[product.catalogId] ?: map[product.name] ?: Pair("", "")
     }
 
     fun addProduct(product: com.numisproerp.data.entities.Product) {

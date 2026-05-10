@@ -24,8 +24,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Numbers
+import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
@@ -59,6 +63,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.numisproerp.data.entities.CatalogItem
+import com.numisproerp.ui.components.SortFilterRow
 import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
@@ -201,17 +206,21 @@ fun CatalogScreen(
             onDismissRequest = { viewModel.toggleSortDialog(false) },
             title = { Text(tr("Сортувати", "Sort")) },
             text = {
-                Column {
-                    listOf("name" to tr("За назвою", "By name"), "date" to tr("За датою", "By date"), "denomination" to tr("За номіналом", "By denomination")).forEach { (value, label) ->
-                        TextButton(
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        Triple("name", tr("За назвою", "By name"), Icons.Default.SortByAlpha),
+                        Triple("date", tr("За датою", "By date"), Icons.Default.CalendarMonth),
+                        Triple("denomination", tr("За номіналом", "By denomination"), Icons.Default.Numbers)
+                    ).forEach { (value, label, icon) ->
+                        SortFilterRow(
+                            icon = icon,
+                            label = label,
+                            selected = uiState.sortBy == value,
                             onClick = {
                                 viewModel.setSortBy(value)
                                 viewModel.toggleSortDialog(false)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(label)
-                        }
+                            }
+                        )
                     }
                 }
             },
@@ -231,27 +240,28 @@ fun CatalogScreen(
             title = { Text(tr("Фільтрувати за категорією", "Filter by category")) },
             text = {
                 Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    TextButton(
+                    SortFilterRow(
+                        icon = Icons.Default.FilterList,
+                        label = tr("Всі категорії", "All categories"),
+                        selected = uiState.selectedCategory.isEmpty(),
                         onClick = {
                             viewModel.clearCategory()
                             viewModel.toggleFilterDialog(false)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(tr("Всі категорії", "All categories"), fontWeight = FontWeight.Bold)
-                    }
+                        }
+                    )
                     uiState.categories.forEach { category ->
-                        TextButton(
+                        SortFilterRow(
+                            icon = Icons.Default.Apps,
+                            label = category,
+                            selected = uiState.selectedCategory == category,
                             onClick = {
                                 viewModel.selectCategory(category)
                                 viewModel.toggleFilterDialog(false)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(category)
-                        }
+                            }
+                        )
                     }
                 }
             },

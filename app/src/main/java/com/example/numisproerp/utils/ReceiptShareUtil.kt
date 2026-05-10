@@ -65,4 +65,30 @@ object ReceiptShareUtil {
             // best-effort cleanup
         }
     }
+
+    /**
+     * Відкриває PDF у зовнішньому переглядачі (Adobe / Google PDF Viewer тощо).
+     * Якщо такого додатка не знайдено — відкриває chooser шерінгу як фолбек.
+     */
+    fun openPdf(context: Context, filePath: String) {
+        val file = File(filePath)
+        if (!file.exists()) return
+        val authority = "${context.packageName}.fileprovider"
+        val uri: Uri = FileProvider.getUriForFile(context, authority, file)
+
+        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/pdf")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        try {
+            val chooser = Intent.createChooser(viewIntent, "Відкрити PDF").apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(chooser)
+        } catch (_: Exception) {
+            // Якщо немає переглядача PDF — фолбек до шерінгу.
+            share(context, filePath)
+        }
+    }
 }
