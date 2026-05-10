@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.numisproerp.data.entities.Note
 import com.numisproerp.data.repository.Repository
+import com.numisproerp.notifications.NoteAlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +24,8 @@ data class NotesUiState(
 
 @HiltViewModel
 class NotesViewModel @Inject constructor(
-    private val repository: Repository
+    private val repository: Repository,
+    private val alarmScheduler: NoteAlarmScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NotesUiState())
@@ -64,7 +66,7 @@ class NotesViewModel @Inject constructor(
         }
         viewModelScope.launch {
             val editing = _uiState.value.editingNote
-            if (editing == null) {
+            val saved = if (editing == null) {
                 val newNote = Note(
                     noteId = "NOTE_${UUID.randomUUID().toString().take(8).uppercase()}",
                     title = title.trim(),
@@ -74,27 +76,36 @@ class NotesViewModel @Inject constructor(
                     createdAt = System.currentTimeMillis()
                 )
                 repository.insertNote(newNote)
+                newNote
             } else {
-                repository.updateNote(
-                    editing.copy(
-                        title = title.trim(),
-                        text = text.trim(),
-                        reminderDate = reminderDate
-                    )
+                val updated = editing.copy(
+                    title = title.trim(),
+                    text = text.trim(),
+                    reminderDate = reminderDate
                 )
+                repository.updateNote(updated)
+                updated
             }
+            alarmScheduler.reschedule(saved)
             _uiState.value = _uiState.value.copy(showAddDialog = false, editingNote = null, errorMessage = "")
         }
     }
 
     fun toggleCompleted(note: Note) {
         viewModelScope.launch {
-            repository.updateNote(note.copy(isCompleted = !note.isCompleted))
+            val updated = note.copy(isCompleted = !note.isCompleted)
+            repository.updateNote(updated)
+            if (updated.isCompleted) {
+                alarmScheduler.cancel(updated.noteId)
+            } else {
+                alarmScheduler.reschedule(updated)
+            }
         }
     }
 
     fun deleteNote(note: Note) {
         viewModelScope.launch {
+            alarmScheduler.cancel(note.noteId)
             repository.deleteNote(note)
         }
     }

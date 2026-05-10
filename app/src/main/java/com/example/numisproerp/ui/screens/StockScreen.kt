@@ -27,8 +27,17 @@ import coil.request.ImageRequest
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SortByAlpha
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.AlertDialog
@@ -60,6 +69,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.numisproerp.data.entities.Product
+import com.numisproerp.ui.components.SortFilterRow
 import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
@@ -320,28 +330,25 @@ fun StockScreen(
             onDismissRequest = { viewModel.toggleSortDialog(false) },
             title = { Text(tr("Сортувати", "Sort")) },
             text = {
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
-                        "name" to tr("За назвою", "By name"),
-                        "quantity_desc" to tr("За кількістю (спадання)", "By quantity (desc)"),
-                        "quantity_asc" to tr("За кількістю (зростання)", "By quantity (asc)"),
-                        "price_desc" to tr("За ціною (спадання)", "By price (desc)"),
-                        "price_asc" to tr("За ціною (зростання)", "By price (asc)"),
-                        "category" to tr("За категорією", "By category"),
-                        "material" to tr("За матеріалом", "By material")
-                    ).forEach { (value, label) ->
-                        TextButton(
+                        Triple("name", tr("За назвою", "By name"), Icons.Default.SortByAlpha),
+                        Triple("quantity_desc", tr("За кількістю (спадання)", "By quantity (desc)"), Icons.AutoMirrored.Filled.TrendingDown),
+                        Triple("quantity_asc", tr("За кількістю (зростання)", "By quantity (asc)"), Icons.AutoMirrored.Filled.TrendingUp),
+                        Triple("price_desc", tr("За ціною (спадання)", "By price (desc)"), Icons.AutoMirrored.Filled.TrendingDown),
+                        Triple("price_asc", tr("За ціною (зростання)", "By price (asc)"), Icons.AutoMirrored.Filled.TrendingUp),
+                        Triple("category", tr("За категорією", "By category"), Icons.Default.Apps),
+                        Triple("material", tr("За матеріалом", "By material"), Icons.Default.Layers)
+                    ).forEach { (value, label, icon) ->
+                        SortFilterRow(
+                            icon = icon,
+                            label = label,
+                            selected = uiState.sortBy == value,
                             onClick = {
                                 viewModel.setSortBy(value)
                                 viewModel.toggleSortDialog(false)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = if (uiState.sortBy == value) "• $label" else label,
-                                fontWeight = if (uiState.sortBy == value) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             },
@@ -480,19 +487,24 @@ private fun StockFilterDialog(
             ) {
                 if (activeDimension == null) {
                     StockFilterDimensionRow(
-                        tr("Матеріал", "Material"), uiState.filterMaterial, uiState.materials.isEmpty()
+                        tr("Матеріал", "Material"), Icons.Default.Layers,
+                        uiState.filterMaterial, uiState.materials.isEmpty()
                     ) { activeDimension = "material" }
                     StockFilterDimensionRow(
-                        tr("Категорія", "Category"), uiState.filterCategory, uiState.categories.isEmpty()
+                        tr("Категорія", "Category"), Icons.Default.Apps,
+                        uiState.filterCategory, uiState.categories.isEmpty()
                     ) { activeDimension = "category" }
                     StockFilterDimensionRow(
-                        tr("Якість", "Quality"), uiState.filterQuality, uiState.qualities.isEmpty()
+                        tr("Якість", "Quality"), Icons.Default.Star,
+                        uiState.filterQuality, uiState.qualities.isEmpty()
                     ) { activeDimension = "quality" }
                     StockFilterDimensionRow(
-                        tr("Серія", "Series"), uiState.filterSeries, uiState.seriesList.isEmpty()
+                        tr("Серія", "Series"), Icons.Default.Category,
+                        uiState.filterSeries, uiState.seriesList.isEmpty()
                     ) { activeDimension = "series" }
                     StockFilterDimensionRow(
-                        tr("Номінал", "Nominal"), uiState.filterNominal, uiState.nominals.isEmpty()
+                        tr("Номінал", "Nominal"), Icons.Default.Numbers,
+                        uiState.filterNominal, uiState.nominals.isEmpty()
                     ) { activeDimension = "nominal" }
                 } else {
                     val (options, currentValue, apply) = when (activeDimension) {
@@ -503,26 +515,28 @@ private fun StockFilterDialog(
                         "nominal" -> Triple(uiState.nominals, uiState.filterNominal, onNominalSelected)
                         else -> Triple(emptyList(), "", {} as (String) -> Unit)
                     }
-
-                    TextButton(
-                        onClick = { apply(""); activeDimension = null },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            tr("Усі", "All"),
-                            fontWeight = if (currentValue.isEmpty()) FontWeight.Bold else FontWeight.Normal
-                        )
+                    val dimIcon = when (activeDimension) {
+                        "material" -> Icons.Default.Layers
+                        "category" -> Icons.Default.Apps
+                        "quality" -> Icons.Default.Star
+                        "series" -> Icons.Default.Category
+                        "nominal" -> Icons.Default.Numbers
+                        else -> Icons.Default.Tune
                     }
+
+                    SortFilterRow(
+                        icon = Icons.Default.FilterList,
+                        label = tr("Усі", "All"),
+                        selected = currentValue.isEmpty(),
+                        onClick = { apply(""); activeDimension = null }
+                    )
                     options.forEach { value ->
-                        TextButton(
-                            onClick = { apply(value); activeDimension = null },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = if (currentValue == value) "• $value" else value,
-                                fontWeight = if (currentValue == value) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
+                        SortFilterRow(
+                            icon = dimIcon,
+                            label = value,
+                            selected = currentValue == value,
+                            onClick = { apply(value); activeDimension = null }
+                        )
                     }
                     if (options.isEmpty()) {
                         Text(
@@ -555,29 +569,27 @@ private fun StockFilterDialog(
 @Composable
 private fun StockFilterDimensionRow(
     label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     selected: String,
     empty: Boolean,
     onClick: () -> Unit
 ) {
-    TextButton(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        enabled = !empty
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    SortFilterRow(
+        icon = icon,
+        label = label,
+        selected = selected.isNotEmpty(),
+        onClick = if (empty) ({}) else onClick,
+        showRadio = false,
+        trailing = {
             Text(
-                text = label,
-                fontWeight = if (selected.isNotEmpty()) FontWeight.Bold else FontWeight.Normal
-            )
-            Text(
-                text = if (selected.isNotEmpty()) selected else if (empty) tr("немає", "none") else "›",
+                text = when {
+                    selected.isNotEmpty() -> selected
+                    empty -> tr("немає", "none")
+                    else -> "›"
+                },
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
-    }
+    )
 }

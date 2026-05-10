@@ -457,6 +457,13 @@ fun SaleScreen(
         }
     }
 
+    // Авто-відкриття PDF-чека одразу після продажу.
+    LaunchedEffect(receiptDialogPath) {
+        receiptDialogPath?.let { path ->
+            ReceiptShareUtil.openPdf(context, path)
+        }
+    }
+
     // Діалог пост-продажу: чек PDF, дії — поділитися/зберегти/не зберігати
     receiptDialogPath?.let { path ->
         val downloadedText = tr("Збережено в Downloads", "Saved to Downloads")

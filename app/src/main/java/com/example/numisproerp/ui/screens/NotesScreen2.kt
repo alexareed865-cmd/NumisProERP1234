@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -61,6 +62,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.numisproerp.data.entities.Note
+import com.numisproerp.data.settings.SettingsManager
+import com.numisproerp.di.SettingsManagerEntryPoint
+import com.numisproerp.ui.components.NotificationSettingsDialog
 import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
 import com.numisproerp.ui.theme.AccentGreen
@@ -68,6 +72,7 @@ import com.numisproerp.ui.theme.AccentOrange
 import com.numisproerp.ui.theme.AccentRed
 import com.numisproerp.ui.theme.IOSDesign
 import com.numisproerp.ui.viewmodel.NotesViewModel
+import dagger.hilt.android.EntryPointAccessors
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -78,8 +83,18 @@ fun MyNotesScreen(
     navController: NavHostController,
     viewModel: NotesViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     var deleteCandidate by remember { mutableStateOf<Note?>(null) }
+    var showNotificationSettings by remember { mutableStateOf(false) }
+
+    val settings: SettingsManager = remember {
+        EntryPointAccessors
+            .fromApplication(context.applicationContext, SettingsManagerEntryPoint::class.java)
+            .settings()
+    }
+    val soundUri by settings.noteAlarmSoundUriState
+    val soundLabel by settings.noteAlarmSoundLabelState
 
     Box(
         modifier = Modifier
@@ -96,6 +111,19 @@ fun MyNotesScreen(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = tr("Назад", "Back"),
                 tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        IconButton(
+            onClick = { showNotificationSettings = true },
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.TopEnd)
+        ) {
+            Icon(
+                Icons.Default.Notifications,
+                contentDescription = tr("Налаштування сповіщень", "Notification settings"),
+                tint = AccentBlue
             )
         }
 
@@ -168,6 +196,18 @@ fun MyNotesScreen(
             onDismiss = { viewModel.closeDialog() },
             onSave = { title, text, reminderDate ->
                 viewModel.saveNote(title, text, reminderDate)
+            }
+        )
+    }
+
+    if (showNotificationSettings) {
+        NotificationSettingsDialog(
+            currentUri = soundUri,
+            currentLabel = soundLabel,
+            onDismiss = { showNotificationSettings = false },
+            onSoundSelected = { uri, label ->
+                settings.noteAlarmSoundUri = uri
+                settings.noteAlarmSoundLabel = label
             }
         )
     }

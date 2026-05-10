@@ -90,8 +90,13 @@ class Repository @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val catalogItems = database.catalogDao().getAllItemsSync()
-                catalogItems.filter { it.imageUrlFront.isNotEmpty() }
+                val byId = catalogItems
+                    .filter { it.imageUrlFront.isNotEmpty() }
+                    .associate { it.id to it.imageUrlFront }
+                val byName = catalogItems
+                    .filter { it.imageUrlFront.isNotEmpty() }
                     .associate { it.name to it.imageUrlFront }
+                byId + byName
             } catch (e: Exception) {
                 emptyMap()
             }
@@ -102,8 +107,13 @@ class Repository @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val catalogItems = database.catalogDao().getAllItemsSync()
-                catalogItems.filter { it.imageUrlFront.isNotEmpty() || it.imageUrlBack.isNotEmpty() }
+                val byId = catalogItems
+                    .filter { it.imageUrlFront.isNotEmpty() || it.imageUrlBack.isNotEmpty() }
+                    .associate { it.id to Pair(it.imageUrlFront, it.imageUrlBack) }
+                val byName = catalogItems
+                    .filter { it.imageUrlFront.isNotEmpty() || it.imageUrlBack.isNotEmpty() }
                     .associate { it.name to Pair(it.imageUrlFront, it.imageUrlBack) }
+                byId + byName
             } catch (e: Exception) {
                 emptyMap()
             }

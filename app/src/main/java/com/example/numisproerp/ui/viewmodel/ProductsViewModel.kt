@@ -76,12 +76,14 @@ class ProductsViewModel @Inject constructor(
 
     fun getProductImageUrl(product: Product): String {
         if (product.photoPath.isNotBlank()) return product.photoPath
-        return _uiState.value.catalogImageMap[product.name] ?: ""
+        val map = _uiState.value.catalogImageMap
+        return map[product.catalogId] ?: map[product.name] ?: ""
     }
 
     fun getProductImageUrls(product: Product): Pair<String, String> {
         if (product.photoPath.isNotBlank()) return Pair(product.photoPath, "")
-        return _uiState.value.catalogImagePairMap[product.name] ?: Pair("", "")
+        val map = _uiState.value.catalogImagePairMap
+        return map[product.catalogId] ?: map[product.name] ?: Pair("", "")
     }
 
     /**
@@ -90,6 +92,16 @@ class ProductsViewModel @Inject constructor(
      * Повертає true при успіху, false якщо товар вже в колекції.
      */
     suspend fun addProductToCollection(product: Product): Boolean {
+        // Підстраховка: якщо ініціалізація ще не встигла підвантажити карту
+        // зображень каталогу — підвантажимо синхронно, щоб фото не загубились.
+        if (_uiState.value.catalogImagePairMap.isEmpty()) {
+            val imageMap = repository.getCatalogImageMap()
+            val imagePairMap = repository.getCatalogImagePairMap()
+            _uiState.value = _uiState.value.copy(
+                catalogImageMap = imageMap,
+                catalogImagePairMap = imagePairMap
+            )
+        }
         val imageUrls = getProductImageUrls(product)
         val item = CollectionItem(
             collectionId = product.catalogId,
