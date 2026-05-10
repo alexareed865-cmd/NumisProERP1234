@@ -704,7 +704,7 @@ fun PurchaseHistoryItem(purchase: PurchaseWithProductName) {
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = "${purchase.quantity} ${tr("шт.", "pcs")}",
+                        text = "${tr("Куплено", "Bought")}: ${purchase.quantity} ${tr("шт.", "pcs")}",
                         fontSize = 11.sp
                     )
                     Text(

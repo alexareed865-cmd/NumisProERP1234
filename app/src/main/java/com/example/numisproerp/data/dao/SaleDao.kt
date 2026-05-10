@@ -24,6 +24,17 @@ data class SaleWithDetails(
     val clientName: String
 )
 
+data class SaleWithClientName(
+    val saleId: String,
+    val date: Long,
+    val catalogId: String,
+    val productName: String,
+    val clientName: String,
+    val quantity: Int,
+    val pricePerUnit: Double,
+    val totalAmount: Double
+)
+
 @Dao
 interface SaleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -79,6 +90,16 @@ interface SaleDao {
 
     @Query("SELECT * FROM sales ORDER BY date DESC")
     suspend fun getAllSales(): List<Sale>
+
+    @Query("""
+        SELECT s.saleId, s.date, s.catalogId, s.quantity, s.pricePerUnit, s.totalAmount,
+               pr.name as productName, c.name as clientName
+        FROM sales s
+        JOIN products pr ON s.catalogId = pr.catalogId
+        JOIN clients c ON s.clientId = c.clientId
+        ORDER BY s.date DESC
+    """)
+    suspend fun getAllSalesWithClientName(): List<SaleWithClientName>
 
     @Query("SELECT SUM(quantity) FROM sales WHERE catalogId = :catalogId")
     suspend fun getTotalQuantitySold(catalogId: String): Int

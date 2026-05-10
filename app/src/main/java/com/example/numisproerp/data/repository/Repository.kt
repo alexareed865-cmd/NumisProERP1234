@@ -7,6 +7,7 @@ import com.numisproerp.data.dao.ProductInStock
 import com.numisproerp.data.dao.ProductStockInfo
 import com.numisproerp.data.dao.ProductWithStock
 import com.numisproerp.data.dao.PurchaseWithProductName
+import com.numisproerp.data.dao.SaleWithClientName
 import com.numisproerp.data.dao.SaleWithProductName
 import com.numisproerp.data.dao.SupplierForSelection
 import com.numisproerp.data.dao.SupplierWithBalance
@@ -20,6 +21,7 @@ import com.numisproerp.data.entities.Sale
 import com.numisproerp.data.entities.Supplier
 import com.numisproerp.data.entities.Writeoff
 import com.numisproerp.data.entities.CollectionItem
+import com.numisproerp.data.entities.Note
 import androidx.room.withTransaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -416,6 +418,36 @@ class Repository @Inject constructor(
      * якщо користувач вийде зі Settings (composition-scope cancel) — операція
      * добіжить до кінця, а не лишить БД у частково очищеному стані.
      */
+    // ==================== NOTES (МОЇ ЗАМІТКИ) ====================
+
+    fun getAllNotes(): Flow<List<Note>> = database.noteDao().getAll()
+
+    suspend fun insertNote(note: Note) {
+        withContext(Dispatchers.IO) { database.noteDao().insert(note) }
+    }
+
+    suspend fun updateNote(note: Note) {
+        withContext(Dispatchers.IO) { database.noteDao().update(note) }
+    }
+
+    suspend fun deleteNote(note: Note) {
+        withContext(Dispatchers.IO) { database.noteDao().delete(note) }
+    }
+
+    suspend fun getDueReminders(timestamp: Long): List<Note> {
+        return withContext(Dispatchers.IO) { database.noteDao().getDueReminders(timestamp) }
+    }
+
+    // ==================== SALES HISTORY (ALL) ====================
+
+    suspend fun getAllSalesWithClientName(): List<SaleWithClientName> {
+        return withContext(Dispatchers.IO) {
+            database.saleDao().getAllSalesWithClientName()
+        }
+    }
+
+    // ==================== CLEAR ALL DATA ====================
+
     suspend fun clearAllData() = withContext(NonCancellable + Dispatchers.IO) {
         database.withTransaction {
             // Спочатку дочірні таблиці (operations), потім довідники
@@ -423,6 +455,7 @@ class Repository @Inject constructor(
             database.saleDao().deleteAll()
             database.purchaseDao().deleteAll()
             database.otherExpenseDao().deleteAll()
+            database.noteDao().deleteAll()
             database.collectionItemDao().deleteAll()
             database.productDao().deleteAll()
             database.clientDao().deleteAll()

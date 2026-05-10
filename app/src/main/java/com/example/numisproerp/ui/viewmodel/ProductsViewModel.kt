@@ -2,6 +2,7 @@ package com.numisproerp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.numisproerp.data.entities.CollectionItem
 import com.numisproerp.data.entities.Product
 import com.numisproerp.data.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -81,6 +82,27 @@ class ProductsViewModel @Inject constructor(
     fun getProductImageUrls(product: Product): Pair<String, String> {
         if (product.photoPath.isNotBlank()) return Pair(product.photoPath, "")
         return _uiState.value.catalogImagePairMap[product.name] ?: Pair("", "")
+    }
+
+    fun addProductToCollection(product: Product) {
+        viewModelScope.launch {
+            val imageUrls = getProductImageUrls(product)
+            val item = CollectionItem(
+                collectionId = product.catalogId,
+                name = product.name,
+                series = product.series,
+                category = product.category,
+                material = product.material,
+                nominal = product.nominal,
+                quality = product.quality,
+                description = "",
+                photoPath = imageUrls.first,
+                estimatedValue = 0.0,
+                quantity = 1,
+                dateAdded = System.currentTimeMillis()
+            )
+            repository.addCollectionItem(item)
+        }
     }
 
     fun filteredProducts(): List<Product> {

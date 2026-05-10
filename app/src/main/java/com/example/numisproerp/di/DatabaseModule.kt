@@ -7,6 +7,7 @@ import com.numisproerp.data.dao.ClientDao
 import com.numisproerp.data.dao.OtherExpenseDao
 import com.numisproerp.data.dao.ProductDao
 import com.numisproerp.data.dao.PurchaseDao
+import com.numisproerp.data.dao.NoteDao
 import com.numisproerp.data.dao.SaleDao
 import com.numisproerp.data.dao.SupplierDao
 import com.numisproerp.data.database.AppDatabase
@@ -71,4 +72,7 @@ object DatabaseModule {
 
     @Provides
     fun provideCatalogDao(db: AppDatabase): CatalogDao = db.catalogDao()
+
+    @Provides
+    fun provideNoteDao(db: AppDatabase): NoteDao = db.noteDao()
 }

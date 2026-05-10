@@ -55,9 +55,11 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import com.numisproerp.data.entities.Product
 import com.numisproerp.ui.i18n.tr
 import com.numisproerp.ui.theme.AccentBlue
+import com.numisproerp.ui.theme.AccentGreen
 import com.numisproerp.ui.theme.AccentOrange
 import com.numisproerp.ui.theme.IOSDesign
 import com.numisproerp.ui.theme.IOSIconChip
@@ -183,12 +185,19 @@ fun ProductsScreen(
     }
 
     selectedProduct?.let { product ->
+        val context = LocalContext.current
         val imageUrls = viewModel.getProductImageUrls(product)
+        val addedToCollectionText = tr("Додано до колекції", "Added to collection")
         ProductDetailDialog(
             product = product,
             imageUrlFront = imageUrls.first,
             imageUrlBack = imageUrls.second,
-            onDismiss = { selectedProduct = null }
+            onDismiss = { selectedProduct = null },
+            onAddToCollection = {
+                viewModel.addProductToCollection(product)
+                Toast.makeText(context, addedToCollectionText, Toast.LENGTH_SHORT).show()
+                selectedProduct = null
+            }
         )
     }
 }
@@ -290,12 +299,20 @@ fun ProductDetailDialog(
     product: Product,
     imageUrlFront: String = product.photoPath,
     imageUrlBack: String = "",
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onAddToCollection: (() -> Unit)? = null
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text(tr("Закрити", "Close")) }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (onAddToCollection != null) {
+                    TextButton(onClick = onAddToCollection) {
+                        Text(tr("В колекцію", "To collection"), color = AccentGreen)
+                    }
+                }
+                TextButton(onClick = onDismiss) { Text(tr("Закрити", "Close")) }
+            }
         },
         title = {
             Text(

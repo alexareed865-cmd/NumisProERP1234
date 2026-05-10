@@ -6,13 +6,29 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.automirrored.outlined.Help
+import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Receipt
+import androidx.compose.material.icons.outlined.Sell
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerValue
@@ -96,16 +112,19 @@ fun NumisProERPNavigation() {
     val showBars = currentRoute == Screen.Dashboard.route
 
     val drawerItems = listOf(
-        DrawerItem(tr("Головне меню", "Home"), Screen.Dashboard.route, false),
-        DrawerItem(tr("Товари", "Products"), Screen.Products.route, false),
-        DrawerItem(tr("Документи", "Documents"), Screen.Documents.route, false),
-        DrawerItem(tr("Витрати", "Expenses"), Screen.Expenses.route, false),
-        DrawerItem(tr("Звіти", "Reports"), Screen.Reports.route, false),
-        DrawerItem(tr("Постачальники", "Suppliers"), Screen.Suppliers.route, false),
-        DrawerItem(tr("Клієнти", "Clients"), Screen.Clients.route, false),
-        DrawerItem(tr("Списання", "Writeoff"), Screen.Writeoff.route, false),
-        DrawerItem(tr("Історія", "History"), Screen.History.route, false),
-        DrawerItem(tr("Налаштування", "Settings"), Screen.Settings.route, false)
+        DrawerItem(tr("Головне меню", "Home"), Screen.Dashboard.route, false, Icons.Default.Home),
+        DrawerItem(tr("Додати товар", "Add product"), Screen.Purchase.route, false, Icons.Default.Add),
+        DrawerItem(tr("Товари", "Products"), Screen.Products.route, false, Icons.Outlined.Inventory2),
+        DrawerItem(tr("Мої замітки", "My Notes"), Screen.MyNotes.route, false, Icons.Outlined.Edit),
+        DrawerItem(tr("Історія продажів", "Sales History"), Screen.SalesHistory.route, false, Icons.Outlined.Sell),
+        DrawerItem(tr("Документи", "Documents"), Screen.Documents.route, false, Icons.Outlined.Description),
+        DrawerItem(tr("Витрати", "Expenses"), Screen.Expenses.route, false, Icons.Outlined.Receipt),
+        DrawerItem(tr("Звіти", "Reports"), Screen.Reports.route, false, Icons.Outlined.BarChart),
+        DrawerItem(tr("Постачальники", "Suppliers"), Screen.Suppliers.route, false, Icons.Default.ShoppingCart),
+        DrawerItem(tr("Клієнти", "Clients"), Screen.Clients.route, false, Icons.Default.People),
+        DrawerItem(tr("Списання", "Writeoff"), Screen.Writeoff.route, false, Icons.Outlined.Delete),
+        DrawerItem(tr("Історія", "History"), Screen.History.route, false, Icons.Outlined.History),
+        DrawerItem(tr("Налаштування", "Settings"), Screen.Settings.route, false, Icons.Default.Settings)
     )
     val sectionInDevText = tr("Розділ в розробці", "Section in development")
 
@@ -115,6 +134,13 @@ fun NumisProERPNavigation() {
             ModalDrawerSheet {
                 drawerItems.forEach { item ->
                     NavigationDrawerItem(
+                        icon = {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.title,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
                         label = { Text(item.title) },
                         selected = false,
                         onClick = {
@@ -238,5 +264,5 @@ fun BottomBar(navController: NavHostController) {
     }
 }
 
-data class DrawerItem(val title: String, val route: String, val isPlaceholder: Boolean)
+data class DrawerItem(val title: String, val route: String, val isPlaceholder: Boolean, val icon: ImageVector = Icons.Default.Home)
 data class BottomNavItem(val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val route: String, val isPlaceholder: Boolean)

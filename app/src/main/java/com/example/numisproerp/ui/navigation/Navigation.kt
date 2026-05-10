@@ -30,6 +30,8 @@ sealed class Screen(val route: String) {
     object MyCollection : Screen("my_collection")  // Моя колекція (п. 12-13 ТЗ)
     object Help : Screen("help")                    // Довідка (п. 15 ТЗ)
     object Notifications : Screen("notifications")  // Сповіщення (п. 15 ТЗ)
+    object MyNotes : Screen("my_notes")               // Мої замітки
+    object SalesHistory : Screen("sales_history")     // Історія продажів
 }
 
 @Composable
@@ -110,6 +112,12 @@ fun NavGraph(
         }
         composable(Screen.Notifications.route) {
             NotificationsScreen(navController = navController)
+        }
+        composable(Screen.MyNotes.route) {
+            MyNotesScreen(navController = navController)
+        }
+        composable(Screen.SalesHistory.route) {
+            SalesHistoryScreen(navController = navController)
         }
     }
 }

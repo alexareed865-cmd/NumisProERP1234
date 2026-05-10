@@ -13,6 +13,7 @@ import com.numisproerp.data.dao.SaleDao
 import com.numisproerp.data.dao.SupplierDao
 import com.numisproerp.data.dao.WriteoffDao
 import com.numisproerp.data.dao.CollectionItemDao
+import com.numisproerp.data.dao.NoteDao
 import com.numisproerp.data.entities.CatalogItem
 import com.numisproerp.data.entities.Client
 import com.numisproerp.data.entities.OtherExpense
@@ -22,6 +23,7 @@ import com.numisproerp.data.entities.Sale
 import com.numisproerp.data.entities.Supplier
 import com.numisproerp.data.entities.Writeoff
 import com.numisproerp.data.entities.CollectionItem
+import com.numisproerp.data.entities.Note
 
 @Database(
     entities = [
@@ -33,9 +35,10 @@ import com.numisproerp.data.entities.CollectionItem
         OtherExpense::class,
         CatalogItem::class,
         Writeoff::class,
-        CollectionItem::class
+        CollectionItem::class,
+        Note::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -48,6 +51,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun catalogDao(): CatalogDao
     abstract fun writeoffDao(): WriteoffDao
     abstract fun collectionItemDao(): CollectionItemDao
+    abstract fun noteDao(): NoteDao
 
     companion object {
         /**
@@ -105,6 +109,24 @@ abstract class AppDatabase : RoomDatabase() {
                             `quantity` INTEGER NOT NULL,
                             `dateAdded` INTEGER NOT NULL,
                             PRIMARY KEY(`collectionId`)
+                        )
+                        """.trimIndent()
+                    )
+                }
+            },
+            // 13 → 14: додано таблицю notes (Мої замітки з нагадуваннями).
+            object : Migration(13, 14) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS `notes` (
+                            `noteId` TEXT NOT NULL,
+                            `title` TEXT NOT NULL,
+                            `text` TEXT NOT NULL,
+                            `reminderDate` INTEGER,
+                            `isCompleted` INTEGER NOT NULL,
+                            `createdAt` INTEGER NOT NULL,
+                            PRIMARY KEY(`noteId`)
                         )
                         """.trimIndent()
                     )

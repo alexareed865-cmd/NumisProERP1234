@@ -758,7 +758,7 @@ fun SaleHistoryItem(sale: SaleWithProductName) {
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = "${sale.quantity} ${tr("шт.", "pcs")}",
+                        text = "${tr("Продано", "Sold")}: ${sale.quantity} ${tr("шт.", "pcs")}",
                         fontSize = 11.sp
                     )
                     Text(
