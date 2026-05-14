@@ -127,11 +127,17 @@ fun DashboardContent(
 
         item {
             val balanceTitle = tr("Загальний баланс", "Total balance")
+            val theme = LocalAppTheme.current
+            val balanceColor = when {
+                theme == AppTheme.OLEG_SMILE_LIGHT || theme == AppTheme.OLEG_SMILE -> MaterialTheme.colorScheme.primary
+                data.totalBalance >= 0 -> AccentGreen
+                else -> AccentRed
+            }
             StatsCardClickable(
                 title = balanceTitle,
                 value = String.format("%,.2f ₴", data.totalBalance),
-                valueColor = if (data.totalBalance >= 0) AccentGreen else AccentRed,
-                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                valueColor = balanceColor,
+                backgroundColor = if (theme == AppTheme.OLEG_SMILE_LIGHT) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.primaryContainer,
                 onClick = { onNavigateToDetails("balance", balanceTitle) }
             )
         }
@@ -197,7 +203,7 @@ fun DashboardContent(
 @Composable
 private fun DashboardHeader(currentDate: String) {
     val theme = LocalAppTheme.current
-    if (theme == AppTheme.OLEG_SMILE) {
+    if (theme == AppTheme.OLEG_SMILE || theme == AppTheme.OLEG_SMILE_LIGHT) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -212,13 +218,13 @@ private fun DashboardHeader(currentDate: String) {
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
-                    text = "OlegSmile",
+                    text = "NumisProERP",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = tr("NumisProERP — облік та каталогізація", "NumisProERP — accounting & catalog"),
+                    text = tr("Облік та автоматизація", "Accounting & automation"),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
@@ -444,7 +450,7 @@ fun QuickAccessButton(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(top = 6.dp, bottom = 4.dp, start = 4.dp, end = 4.dp)
         ) {
-            if (theme == AppTheme.OLEG_SMILE) {
+            if (theme == AppTheme.OLEG_SMILE || theme == AppTheme.OLEG_SMILE_LIGHT) {
                 Image(
                     painter = painterResource(id = tileRes),
                     contentDescription = label,

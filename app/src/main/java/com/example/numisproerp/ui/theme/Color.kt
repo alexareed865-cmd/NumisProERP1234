@@ -88,3 +88,16 @@ val OlegV2SurfaceVariant = Color(0xCC2A2A2A)
 val OlegV2PrimaryContainer = Color(0xCC2C2C2C)
 val OlegV2OnSurface = Color(0xFFFFFFFF)
 val OlegV2OnSurfaceVariant = Color(0xFFB0B0B0)
+
+// =============================================================================
+// OlegSmile Light: світла тема з кремовим фоном та золотими акцентами,
+// як на референсному скріншоті дашборду. Емблема лева видима у верхньому
+// блоці, цифри відображаються золотим кольором, картки — білі з м'якою тінню.
+// =============================================================================
+val OlegLightBackground = Color(0x00000000)
+val OlegLightBackgroundSolid = Color(0xFFF5EFE3)
+val OlegLightSurface = Color(0xFFFFFFFF)
+val OlegLightSurfaceVariant = Color(0xFFFAF4E6)
+val OlegLightPrimaryContainer = Color(0xFFFFF6DA)
+val OlegLightOnSurface = Color(0xFF1F1B16)
+val OlegLightOnSurfaceVariant = Color(0xFF5F584D)

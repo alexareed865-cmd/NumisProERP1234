@@ -97,6 +97,25 @@ private val OlegSmileV2ColorScheme = darkColorScheme(
     onError = Color(0xFF121212)
 )
 
+private val OlegSmileLightColorScheme = lightColorScheme(
+    primary = OlegGold,
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = OlegLightPrimaryContainer,
+    onPrimaryContainer = Color(0xFF1F1B16),
+    secondary = OlegOrange,
+    onSecondary = Color(0xFFFFFFFF),
+    tertiary = OlegBlue,
+    onTertiary = Color(0xFFFFFFFF),
+    background = OlegLightBackground,
+    onBackground = OlegLightOnSurface,
+    surface = OlegLightSurface,
+    onSurface = OlegLightOnSurface,
+    surfaceVariant = OlegLightSurfaceVariant,
+    onSurfaceVariant = OlegLightOnSurfaceVariant,
+    error = IOSRed,
+    onError = Color(0xFFFFFFFF)
+)
+
 private val IOSShapes = Shapes(
     extraSmall = RoundedCornerShape(8.dp),
     small = RoundedCornerShape(12.dp),
@@ -114,6 +133,7 @@ fun NumisProERPTheme(
     val colorScheme = when (appTheme) {
         AppTheme.OLEG_SMILE -> OlegSmileColorScheme
         AppTheme.OLEG_SMILE_V2 -> OlegSmileV2ColorScheme
+        AppTheme.OLEG_SMILE_LIGHT -> OlegSmileLightColorScheme
         AppTheme.DEFAULT -> if (darkTheme) DarkColorScheme else LightColorScheme
     }
 
@@ -156,6 +176,18 @@ fun NumisProERPTheme(
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,
                             alpha = 0.15f
+                        )
+                        content()
+                    }
+                }
+                AppTheme.OLEG_SMILE_LIGHT -> {
+                    Box(modifier = Modifier.fillMaxSize().background(OlegLightBackgroundSolid)) {
+                        Image(
+                            painter = painterResource(id = R.drawable.oleg_smile_background),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            alpha = 0.06f
                         )
                         content()
                     }

@@ -17,12 +17,14 @@ import javax.inject.Singleton
 enum class AppTheme {
     DEFAULT,
     OLEG_SMILE,
-    OLEG_SMILE_V2;
+    OLEG_SMILE_V2,
+    OLEG_SMILE_LIGHT;
 
     companion object {
         fun fromKey(key: String?): AppTheme = when (key) {
             OLEG_SMILE.name -> OLEG_SMILE
             OLEG_SMILE_V2.name -> OLEG_SMILE_V2
+            OLEG_SMILE_LIGHT.name -> OLEG_SMILE_LIGHT
             else -> DEFAULT
         }
     }

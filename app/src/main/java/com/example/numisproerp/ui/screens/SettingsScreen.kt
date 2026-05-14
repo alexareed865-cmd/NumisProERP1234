@@ -475,6 +475,7 @@ private fun ThemeDialog(current: AppTheme, onSelect: (AppTheme) -> Unit, onDismi
                 ThemeOptionRow(tr("Стандартна", "Default"), selected = current == AppTheme.DEFAULT) { onSelect(AppTheme.DEFAULT) }
                 ThemeOptionRow("OlegSmile", selected = current == AppTheme.OLEG_SMILE, emblem = R.drawable.oleg_smile_emblem) { onSelect(AppTheme.OLEG_SMILE) }
                 ThemeOptionRow("OlegSmile v2", selected = current == AppTheme.OLEG_SMILE_V2, emblem = R.drawable.oleg_smile_emblem) { onSelect(AppTheme.OLEG_SMILE_V2) }
+                ThemeOptionRow("OlegSmile Light", selected = current == AppTheme.OLEG_SMILE_LIGHT, emblem = R.drawable.oleg_smile_emblem) { onSelect(AppTheme.OLEG_SMILE_LIGHT) }
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(tr("Готово", "Done")) } }
